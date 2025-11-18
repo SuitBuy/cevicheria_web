@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #FDF0D6;
+    background-color: #ffffff;
     color: #03396c;
     line-height: 1.6;
 }
@@ -141,11 +141,11 @@ header nav ul li a:hover {
 
 .zigzag {
     width: 100%;
-    margin: 120px 0;
+    margin: 80px 0; /* Menor margen que el original */
     display: flex;
     flex-direction: column;
-    gap: 140px;
-    padding: 0 5%;
+    gap: 80px; /* Menor espacio entre elementos */
+    padding: 0; /* Quitamos el padding lateral para un look más de ancho completo */
 }
 
 .zigzag-item {
@@ -154,16 +154,17 @@ header nav ul li a:hover {
     justify-content: center;
     flex-direction: row;
     width: 100%;
-    border-radius: 18px;
+    /* Eliminar estilos de tarjeta (tarjeta) */
+    border-radius: 0;
     overflow: hidden;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-    transition: transform 0.4s ease, box-shadow 0.4s ease;
-    background: rgba(255, 255, 255, 0.9);
+    box-shadow: none;
+    transition: none;
+    background: none;
 }
 
 .zigzag-item:hover {
-    transform: scale(1.02);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    transform: none;
+    box-shadow: none;
 }
 
 .zigzag-item.reverse {
@@ -174,13 +175,14 @@ header nav ul li a:hover {
     width: 50%;
     height: 500px;
     object-fit: cover;
-    filter: brightness(0.95)
+    filter: none; /* Eliminar filtro de brillo */
 }
 
 .zigzag-item .info {
     width: 50%;
-    padding: 100px 80px;
-    background: #fefcf9;
+    /* Ajustamos el padding para mantener la legibilidad y centrar */
+    padding: 80px 5%; 
+    background: #fefcf9; /* Mantenemos un fondo claro para diferenciar el bloque de texto del fondo de la página */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -202,7 +204,7 @@ header nav ul li a:hover {
     font-size: 1.2rem;
     line-height: 1.8;
     color: #555;
-    max-width: 90%;
+    /* max-width: 90%; Eliminamos el max-width para usar el 5% de padding lateral */
     font-family: 'Poppins', sans-serif;
 }
 
@@ -425,15 +427,9 @@ footer {
         height: auto;
     }
 
-    .contenedor-horario-form {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .horario-section,
-    .form-section-derecha,
-    .map-section-izquierda {
-        min-width: 100%;
+    .zigzag-item .info {
+        padding: 40px 5%; /* Ajustar padding en móvil */
+        background: none; /* Quitar fondo en móvil para un diseño más limpio */
     }
 
     .hero-logo {
