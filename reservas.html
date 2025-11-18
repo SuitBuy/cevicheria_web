@@ -5,43 +5,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rinconcito Marino - Reservas</title>
-    
-    <!-- Estilos Generales -->
     <link rel="stylesheet" href="css/style.css">
-    <!-- Estilos Específicos para el Wizard de Reservas -->
-    <link rel="stylesheet" href="css/style_reservas.css">
-    
     <link rel="icon" type="image/png" href="assets/logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 
 <body>
-    <!-- Header Fijo -->
     <header class="header-fijo">
         <div class="logo">
             <a href="index.html">
                 <img src="assets/logo.png" alt="Logo Rinconcito Marino">
             </a>
         </div>
-
         <div class="menu-toggle" id="mobile-menu">
             <i class="fas fa-bars"></i>
         </div>
-
         <nav>
             <ul class="nav-menu">
                 <li><a href="carta.html">Menú</a></li>
-                <li><a href="reserva.html">Reservas</a></li>
+                <li><a href="reservas.html">Reservas</a></li>
                 <li><a href="https://wa.me/51910872665" target="_blank">Contacto</a></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Contenido Principal: Wizard de Reservas -->
     <main class="wizard-wrapper">
-        
-        <!-- Indicadores de Progreso (Pasos 1 al 4) -->
         <div class="progress-container">
             <div class="step-indicator active" id="ind1"><i class="fas fa-user"></i> Personas</div>
             <div class="step-indicator" id="ind2"><i class="far fa-calendar-alt"></i> Fecha</div>
@@ -49,10 +38,7 @@
             <div class="step-indicator" id="ind4"><i class="fas fa-check-circle"></i> Datos</div>
         </div>
 
-        <!-- Contenedor Dinámico de Pasos -->
         <div class="wizard-content">
-
-            <!-- PASO 1: SELECCIÓN DE PERSONAS -->
             <div class="step-panel active" id="step1">
                 <h2 class="step-title">Elige la cantidad de personas</h2>
                 <div class="people-grid">
@@ -67,25 +53,20 @@
                 </div>
             </div>
 
-            <!-- PASO 2: SELECCIÓN DE FECHA -->
             <div class="step-panel" id="step2">
                 <button class="btn-back" onclick="goToStep(1)"><i class="fas fa-arrow-left"></i> Regresar</button>
                 <h2 class="step-title">Elige una fecha</h2>
                 <p class="step-subtitle">Recuerda: No atendemos los domingos.</p>
-                
                 <div class="date-picker-container">
                     <input type="date" id="dateInput" onchange="validateDate(this)">
                 </div>
                 <p id="dateError" class="error-msg"></p>
             </div>
 
-            <!-- PASO 3: SELECCIÓN DE HORA -->
             <div class="step-panel" id="step3">
                 <button class="btn-back" onclick="goToStep(2)"><i class="fas fa-arrow-left"></i> Regresar</button>
                 <h2 class="step-title">Elige una hora</h2>
-                
                 <div class="time-grid">
-                    <!-- Almuerzo -->
                     <button class="btn-time" onclick="selectTime('12:00 PM')">12:00 PM</button>
                     <button class="btn-time" onclick="selectTime('12:15 PM')">12:15 PM</button>
                     <button class="btn-time" onclick="selectTime('12:30 PM')">12:30 PM</button>
@@ -94,27 +75,18 @@
                     <button class="btn-time" onclick="selectTime('01:30 PM')">01:30 PM</button>
                     <button class="btn-time" onclick="selectTime('02:00 PM')">02:00 PM</button>
                     <button class="btn-time" onclick="selectTime('02:30 PM')">02:30 PM</button>
-                    <button class="btn-time" onclick="selectTime('03:00 PM')">03:00 PM</button>
-                    
-                    <!-- Cena -->
                     <button class="btn-time" onclick="selectTime('07:00 PM')">07:00 PM</button>
                     <button class="btn-time" onclick="selectTime('07:30 PM')">07:30 PM</button>
                     <button class="btn-time" onclick="selectTime('08:00 PM')">08:00 PM</button>
                     <button class="btn-time" onclick="selectTime('08:30 PM')">08:30 PM</button>
-                    <button class="btn-time" onclick="selectTime('09:00 PM')">09:00 PM</button>
-                    <button class="btn-time" onclick="selectTime('09:15 PM')">09:15 PM</button>
                 </div>
             </div>
 
-            <!-- PASO 4: DATOS DEL CLIENTE Y RESUMEN -->
             <div class="step-panel" id="step4">
                 <button class="btn-back" onclick="goToStep(3)"><i class="fas fa-arrow-left"></i> Regresar</button>
-                
                 <div class="final-layout">
-                    <!-- Formulario de Datos -->
                     <div class="form-column">
                         <h2 class="step-title" style="text-align: left;">Completa tus datos</h2>
-                        
                         <form id="clientForm">
                             <div class="form-row">
                                 <div class="input-group">
@@ -126,7 +98,6 @@
                                     <input type="text" id="apellido" placeholder="Tu apellido" required>
                                 </div>
                             </div>
-
                             <div class="form-row">
                                 <div class="input-group">
                                     <label>DNI</label>
@@ -137,173 +108,126 @@
                                     <input type="number" id="edad" placeholder="Ej. 25" min="18" required>
                                 </div>
                             </div>
-
                             <div class="input-group">
                                 <label>Correo Electrónico</label>
                                 <input type="email" id="email" placeholder="correo@ejemplo.com" required>
                             </div>
-
                             <div class="input-group">
                                 <label>Número de Teléfono</label>
-                                <div class="phone-wrapper">
-                                    <span class="prefix">🇵🇪 +51</span>
-                                    <input type="tel" id="telefono" placeholder="999 999 999" maxlength="9" required>
-                                </div>
+                                <input type="tel" id="telefono" placeholder="999 999 999" maxlength="9" required>
                             </div>
                         </form>
                     </div>
 
-                    <!-- Tarjeta de Resumen (Estilo Oscuro) -->
                     <div class="summary-column">
                         <div class="summary-card">
                             <h3>Rinconcito Marino</h3>
                             <p class="location-text">Miraflores</p>
-                            
-                            <div class="summary-detail">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>Calle Tarata 248</span>
-                            </div>
-                            
+                            <div class="summary-detail"><i class="fas fa-map-marker-alt"></i> Calle Tarata 248</div>
                             <hr class="divider">
-
-                            <div class="summary-row">
-                                <i class="fas fa-user-friends"></i>
-                                <span id="sumPersonas">-- personas</span>
-                            </div>
-                            <div class="summary-row">
-                                <i class="far fa-calendar-alt"></i>
-                                <span id="sumFecha">--/--/----</span>
-                            </div>
-                            <div class="summary-row">
-                                <i class="far fa-clock"></i>
-                                <span id="sumHora">--:--</span>
-                            </div>
-                            <div class="summary-row">
-                                <i class="fas fa-utensils"></i>
-                                <span>Salón Principal</span>
-                            </div>
-
+                            <div class="summary-row"><i class="fas fa-user-friends"></i> <span id="sumPersonas">--</span></div>
+                            <div class="summary-row"><i class="far fa-calendar-alt"></i> <span id="sumFecha">--/--/----</span></div>
+                            <div class="summary-row"><i class="far fa-clock"></i> <span id="sumHora">--:--</span></div>
                             <button type="button" class="btn-confirm" onclick="finalizeReservation()">CONFIRMAR RESERVA</button>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </main>
 
-    <!-- Footer -->
     <footer>
-        <div class="footer-container">
-            <div class="footer-links">
-                <h4>Navegación</h4>
+        <div class="footer-main">
+            <div class="footer-col logo-col">
+                <img src="assets/logo.png" alt="Logo Rinconcito Marino" class="footer-logo">
+            </div>
+            <div class="footer-col">
+                <h3>Acerca de Rinconcito</h3>
                 <ul>
-                    <li><a href="carta.html">Menú</a></li>
-                    <li><a href="reserva.html">Reservas</a></li>
-                    <li><a href="https://wa.me/51910872665" target="_blank">Contacto</a></li>
+                    <li><a href="index.html">QUIÉNES SOMOS</a></li>
+                    <li><a href="carta.html">NUESTRA CARTA</a></li>
+                    <li><a href="#">HORARIOS</a></li>
+                    <li><a href="https://maps.google.com">UBÍCANOS</a></li>
                 </ul>
             </div>
-            <div class="footer-redes">
-                <h4>Síguenos</h4>
-                <ul>
-                    <li><a href="#"><i class="fab fa-facebook-f"></i> Facebook</a></li>
-                    <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
-                    <li><a href="#"><i class="fab fa-tiktok"></i> TikTok</a></li>
-                </ul>
+            <div class="footer-col">
+                <h3>Más información</h3>
+                <a href="#" class="libro-reclamaciones">
+                    <i class="fas fa-book-open"></i> Libro de reclamaciones
+                </a>
             </div>
-            <div class="footer-legales">
-                <h4>Ayuda y Legales</h4>
-                <ul>
-                    <li><a href="#">Políticas de cookies</a></li>
-                    <li><a href="#">Política de privacidad</a></li>
-                    <li><a href="#">Términos y condiciones</a></li>
-                </ul>
+            <div class="footer-col actions-col">
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-tiktok"></i></a>
+                    <a href="#"><i class="fab fa-x"></i></a>
+                </div>
+                <div class="footer-action-buttons">
+                    <a href="reservas.html" class="btn-outline">Reservas</a>
+                    <a href="carta.html" class="btn-outline">Carta</a>
+                    <a href="#" class="btn-outline">Pedidos Online</a>
+                </div>
             </div>
         </div>
-        <p class="copy">© 2025 Rinconcito Marino - Todos los derechos reservados</p>
+        <div class="footer-bottom">
+            <div class="footer-copyright">
+                <p>Restaurante Rinconcito Marino 2025. Todos los derechos reservados</p>
+            </div>
+        </div>
+        <div class="floating-buttons">
+            <a href="#" class="btn-float btn-scroll-top" id="scrollTopBtn"><i class="fas fa-chevron-up"></i></a>
+            <a href="https://wa.me/51910872665" target="_blank" class="btn-float btn-whatsapp"><i class="fab fa-whatsapp"></i></a>
+        </div>
     </footer>
 
     <script>
-        // MENU HAMBURGUESA
-        const menuToggle = document.getElementById('mobile-menu');
-        const navMenu = document.querySelector('header nav ul');
-        menuToggle.addEventListener('click', () => { navMenu.classList.toggle('active'); });
+        let reserva = { personas: 0, fecha: '', hora: '', cliente: {} };
 
-        // --- LÓGICA DE RESERVA ---
-        
-        // Objeto para almacenar datos
-        let reserva = {
-            personas: 0,
-            fecha: '',
-            hora: '',
-            cliente: {}
-        };
-
-        // Función para navegar entre pasos
         function goToStep(stepNumber) {
-            // Ocultar todos los paneles
             document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-            // Mostrar el actual
             document.getElementById('step' + stepNumber).classList.add('active');
-            
-            // Actualizar indicadores
             updateIndicators(stepNumber);
         }
 
         function updateIndicators(currentStep) {
             for (let i = 1; i <= 4; i++) {
-                const indicator = document.getElementById('ind' + i);
-                if (i <= currentStep) {
-                    indicator.classList.add('active');
-                } else {
-                    indicator.classList.remove('active');
-                }
+                const ind = document.getElementById('ind' + i);
+                if (i <= currentStep) ind.classList.add('active');
+                else ind.classList.remove('active');
             }
         }
 
-        // PASO 1: Personas
         function selectPeople(num) {
             reserva.personas = num;
             document.getElementById('sumPersonas').innerText = num + (num === 1 ? ' persona' : ' personas');
             goToStep(2);
-            
-            // Configurar fecha mínima hoy
             const dateInput = document.getElementById('dateInput');
-            const today = new Date().toISOString().split('T')[0];
-            dateInput.setAttribute('min', today);
+            dateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
         }
 
-        // PASO 2: Fecha
         function validateDate(input) {
-            const errorMsg = document.getElementById('dateError');
-            const dateVal = new Date(input.value);
-            const day = dateVal.getUTCDay(); // 0 = Domingo
-
-            if (day === 0) {
-                errorMsg.innerText = "Lo sentimos, no atendemos los domingos. Por favor elige otro día.";
+            if (!input.value) return;
+            const parts = input.value.split('-');
+            const dateVal = new Date(parts[0], parts[1]-1, parts[2]);
+            if (dateVal.getDay() === 0) {
+                document.getElementById('dateError').innerText = "No atendemos los domingos.";
                 input.value = "";
             } else {
-                errorMsg.innerText = "";
+                document.getElementById('dateError').innerText = "";
                 reserva.fecha = input.value;
-                
-                // Formatear fecha para resumen
-                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                document.getElementById('sumFecha').innerText = dateVal.toLocaleDateString('es-ES', options);
-                
+                document.getElementById('sumFecha').innerText = dateVal.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                 goToStep(3);
             }
         }
 
-        // PASO 3: Hora
         function selectTime(time) {
             reserva.hora = time;
             document.getElementById('sumHora').innerText = time;
             goToStep(4);
         }
 
-        // PASO 4: Finalizar
         function finalizeReservation() {
-            // Obtener valores del formulario
             const nombre = document.getElementById('nombre').value.trim();
             const apellido = document.getElementById('apellido').value.trim();
             const dni = document.getElementById('dni').value.trim();
@@ -311,45 +235,31 @@
             const email = document.getElementById('email').value.trim();
             const telefono = document.getElementById('telefono').value.trim();
 
-            // Validaciones
-            if (!nombre || !apellido || !dni || !edad || !email || !telefono) {
-                alert("Por favor completa todos los campos.");
-                return;
-            }
+            if (!nombre || !apellido || !dni || !edad || !email || !telefono) return alert("Completa todos los campos");
+            if (dni.length !== 8) return alert("DNI inválido");
+            if (telefono.length !== 9) return alert("Teléfono inválido");
+            if (edad < 18) return alert("Debes ser mayor de edad");
 
-            if (dni.length !== 8 || isNaN(dni)) {
-                alert("El DNI debe tener 8 dígitos numéricos.");
-                return;
-            }
-
-            if (telefono.length !== 9 || isNaN(telefono)) {
-                alert("El teléfono debe tener 9 dígitos.");
-                return;
-            }
-
-            if (edad < 18) {
-                alert("Debes ser mayor de edad para realizar una reserva.");
-                return;
-            }
-
-            // Guardar datos del cliente
-            reserva.cliente = {
-                nombre: nombre,
-                apellido: apellido,
-                dni: dni,
-                edad: edad,
-                email: email,
-                telefono: telefono
-            };
-
-            // --- LOG EN CONSOLA ---
-            console.log(JSON.stringify(reserva, null, 2));
-            
-            alert("log enviado.");
-            
-            // Opcional: Redirigir o resetear
-            // window.location.reload();
+            reserva.cliente = { nombre, apellido, dni, edad, email, telefono };
+            console.log("RESERVA:", JSON.stringify(reserva, null, 2));
+            alert("Reserva enviada. Revisa la consola.");
         }
+
+        // --- MENU & SCROLL ---
+        const menuToggle = document.getElementById('mobile-menu');
+        const navMenu = document.querySelector('header nav ul');
+        if(menuToggle) menuToggle.addEventListener('click', () => navMenu.classList.toggle('active'));
+
+        window.addEventListener('scroll', () => {
+            const topBtn = document.getElementById('scrollTopBtn');
+            if(topBtn) {
+                if(window.scrollY > 300) topBtn.classList.add('show');
+                else topBtn.classList.remove('show');
+            }
+        });
+        document.getElementById('scrollTopBtn').addEventListener('click', e => {
+            e.preventDefault(); window.scrollTo({top:0, behavior:'smooth'});
+        });
     </script>
 </body>
 </html>

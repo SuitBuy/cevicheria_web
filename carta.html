@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rinconcito Marino - Carta</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 
@@ -17,11 +18,9 @@
                 <img src="assets/logo.png" alt="Logo Rinconcito Marino">
             </a>
         </div>
-
         <div class="menu-toggle" id="mobile-menu">
             <i class="fas fa-bars"></i>
         </div>
-
         <nav>
             <ul class="nav-menu">
                 <li><a href="carta.html">Menú</a></li>
@@ -36,46 +35,71 @@
     </main>
 
     <footer>
-        <div class="footer-container">
-            <div class="footer-links">
-                <h4>Navegación</h4>
+        <div class="footer-main">
+            <div class="footer-col logo-col">
+                <img src="assets/logo.png" alt="Logo Rinconcito Marino" class="footer-logo">
+            </div>
+            <div class="footer-col">
+                <h3>Acerca de Rinconcito</h3>
                 <ul>
-                    <li><a href="carta.html">Menú</a></li>
-                    <li><a href="reservas.html">Reserva</a></li>
-                    <li><a href="https://wa.me/51910872665" target="_blank">Contacto</a></li>
+                    <li><a href="index.html">QUIÉNES SOMOS</a></li>
+                    <li><a href="carta.html">NUESTRA CARTA</a></li>
+                    <li><a href="#">HORARIOS</a></li>
+                    <li><a href="https://maps.google.com">UBÍCANOS</a></li>
                 </ul>
             </div>
-            <div class="footer-redes">
-                <h4>Síguenos</h4>
-                <ul>
-                    <li><a href="#"><i class="fab fa-facebook-f"></i> Facebook</a></li>
-                    <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
-                    <li><a href="#"><i class="fab fa-tiktok"></i> TikTok</a></li>
-                </ul>
+            <div class="footer-col">
+                <h3>Más información</h3>
+                <a href="#" class="libro-reclamaciones">
+                    <i class="fas fa-book-open"></i> Libro de reclamaciones
+                </a>
             </div>
-            <div class="footer-legales">
-                <h4>Ayuda y Legales</h4>
-                <ul>
-                    <li><a href="#">Políticas de cookies</a></li>
-                    <li><a href="#">Política de privacidad</a></li>
-                    <li><a href="#">Políticas de videovigilancia</a></li>
-                    <li><a href="#">Términos y condiciones de uso</a></li>
-                </ul>
+            <div class="footer-col actions-col">
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-tiktok"></i></a>
+                    <a href="#"><i class="fab fa-x"></i></a>
+                </div>
+                <div class="footer-action-buttons">
+                    <a href="reservas.html" class="btn-outline">Reservas</a>
+                    <a href="carta.html" class="btn-outline">Carta</a>
+                    <a href="#" class="btn-outline">Pedidos Online</a>
+                </div>
             </div>
         </div>
-        <p class="copy">&copy; 2025 Rinconcito Marino - Todos los derechos reservados</p>
+        <div class="footer-bottom">
+            <div class="footer-copyright">
+                <p>Restaurante Rinconcito Marino 2025. Todos los derechos reservados</p>
+            </div>
+        </div>
+        <div class="floating-buttons">
+            <a href="#" class="btn-float btn-scroll-top" id="scrollTopBtn"><i class="fas fa-chevron-up"></i></a>
+            <a href="https://wa.me/51910872665" target="_blank" class="btn-float btn-whatsapp"><i class="fab fa-whatsapp"></i></a>
+        </div>
     </footer>
 
     <script>
-        // Lógica del menú hamburguesa
-        const menuToggle = document.getElementById('mobile-menu');
-        // Seleccionamos header nav ul por si la clase no está, o usa .nav-menu si prefieres
-        const navMenu = document.querySelector('header nav ul');
-
-        menuToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
+        window.addEventListener('scroll', () => {
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+            if (scrollTopBtn) {
+                if (window.scrollY > 300) scrollTopBtn.classList.add('show');
+                else scrollTopBtn.classList.remove('show');
+            }
         });
+
+        document.getElementById('scrollTopBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        const menuToggle = document.getElementById('mobile-menu');
+        const navMenu = document.querySelector('header nav ul');
+        if (menuToggle && navMenu) {
+            menuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+            });
+        }
     </script>
 </body>
-
 </html>

@@ -9,9 +9,8 @@
     <link rel="icon" type="image/png" href="assets/logo.png">
     <link
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600&display=swap"
-        rel="style">
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
 </head>
 
 <body>
@@ -49,24 +48,21 @@
         <div class="zigzag-item">
             <img src="assets/ceviche.jpg" alt="Ceviche fresco">
             <div class="info">
-                <h2>NUESTRA ESENCIA MARINA</h2>
-                <p>En Rinconcito Marino, somos más que una cevichería: somos un homenaje a la frescura de nuestro mar y
-                    a la riqueza de la tradición culinaria peruana. Nacimos con la misión de llevar el sabor auténtico
-                    de la costa a tu mesa, utilizando ingredientes de la más alta calidad y un cariño en cada plato que
-                    evoca el ambiente cálido del hogar. Cada visita es un viaje a las olas del Pacífico, donde la
-                    tradición y la pasión se encuentran.</p>
+                <h2>¿QUIÉNES SOMOS?</h2>
+                <p>Somos Rinconcito Marino, guardianes de la auténtica sazón peruana. Nacimos del amor por nuestro mar y
+                    sus riquezas, con la misión de llevar a tu mesa la frescura del puerto cada día. Fusionamos recetas
+                    tradicionales con ingredientes seleccionados para brindarte no solo un plato, sino una experiencia
+                    que celebra la grandeza de nuestra gastronomía en cada bocado.</p>
             </div>
         </div>
 
         <div class="zigzag-item reverse">
             <img src="assets/chicharron.jpg" alt="Chicharrón de Pescado">
             <div class="info">
-                <h2>EL SABOR DE LA COSTA PERUANA</h2>
+                <h2>EL SABOR DE LA COSTA</h2>
                 <p>Nuestra cocina se fundamenta en la frescura innegociable. Desde el pescado que utilizamos en nuestro
                     Ceviche Clásico hasta los mariscos que enriquecen nuestra Jalea Mixta, cada insumo es seleccionado
-                    diariamente para garantizar la excelencia. Nos especializamos en mantener la autenticidad de las
-                    recetas tradicionales, con el toque exacto de ají y limón que solo un verdadero 'rinconcito' marino
-                    puede ofrecer. Aquí, cada bocado es un crujido del mar.</p>
+                    diariamente.</p>
             </div>
         </div>
 
@@ -86,14 +82,11 @@
                 <iframe
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3900.5653456391945!2d-77.02986422502755!3d-12.14371424726245!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x945f822f30200001%3A0xc3f17d848e025f38!2sCalle%20Tarata%20248%2C%20Miraflores%2015074!5e0!3m2!1ses-419!2spe!4v1700685600000!5m2!1ses-419!2spe"
                     width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade">
-                </iframe>
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
             <div class="info-map-below">
                 <h3>UBÍCANOS</h3>
                 <p>Calle Tarata 248, Miraflores</p>
-                <p>Como referencia estamos en la calle peatonal, a media cuadra del cruce entre la Av. Larco y Av.
-                    Benavides.</p>
                 <a href="https://www.google.com/maps/search/?api=1&query=Calle+Tarata+248+Miraflores"
                     target="_blank">Ver Ubicación en Google Maps</a>
             </div>
@@ -104,91 +97,97 @@
             <form id="opinionForm">
                 <label for="nombres">Nombres:</label>
                 <input type="text" id="nombres" name="nombres" required>
-
-                <label for="apellidos">Apellidos:</label>
-                <input type="text" id="apellidos" name="apellidos" required>
-
                 <label for="correo">Correo electrónico:</label>
                 <input type="email" id="correo" name="correo" required>
-
-                <label for="numero">Número de teléfono:</label>
-                <input type="tel" id="numero" name="numero" required>
-
                 <label for="comentario">Comentario:</label>
-                <textarea id="comentario" name="comentario" rows="4" placeholder="Cuéntanos tu opinión"></textarea>
-
+                <textarea id="comentario" name="comentario" rows="4"></textarea>
                 <button type="submit" class="btn">Enviar Opinión</button>
             </form>
         </div>
     </section>
 
     <footer>
-        <div class="footer-container">
-            <div class="footer-links">
-                <h4>Navegación</h4>
+        <div class="footer-main">
+            <div class="footer-col logo-col">
+                <img src="assets/logo.png" alt="Logo Rinconcito Marino" class="footer-logo">
+            </div>
+            <div class="footer-col">
+                <h3>Acerca de Rinconcito</h3>
                 <ul>
-                    <li><a href="carta.html">Menú</a></li>
-                    <li><a href="reservas.html">Reservas</a></li>
-                    <li><a href="https://wa.me/51910872665" target="_blank">Contacto</a></li>
+                    <li><a href="#">QUIÉNES SOMOS</a></li>
+                    <li><a href="carta.html">NUESTRA CARTA</a></li>
+                    <li><a href="#">HORARIOS</a></li>
+                    <li><a href="https://maps.google.com">UBÍCANOS</a></li>
                 </ul>
             </div>
-            <div class="footer-redes">
-                <h4>Síguenos</h4>
-                <ul>
-                    <li><a href="#"><i class="fab fa-facebook-f"></i> Facebook</a></li>
-                    <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
-                    <li><a href="#"><i class="fab fa-tiktok"></i> TikTok</a></li>
-                </ul>
+            <div class="footer-col">
+                <h3>Más información</h3>
+                <a href="#" class="libro-reclamaciones">
+                    <i class="fas fa-book-open"></i> Libro de reclamaciones
+                </a>
             </div>
-
-            <div class="footer-legales">
-                <h4>Ayuda y Legales</h4>
-                <ul>
-                    <li><a href="#">Políticas de cookies</a></li>
-                    <li><a href="#">Política de privacidad</a></li>
-                    <li><a href="#">Términos y condiciones</a></li>
-                </ul>
+            <div class="footer-col actions-col">
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-tiktok"></i></a>
+                    <a href="#"><i class="fab fa-x"></i></a>
+                </div>
+                <div class="footer-action-buttons">
+                    <a href="reservas.html" class="btn-outline">Reservas</a>
+                    <a href="carta.html" class="btn-outline">Carta</a>
+                    <a href="#" class="btn-outline">Pedidos Online</a>
+                </div>
             </div>
         </div>
-        <p class="copy">© 2025 Rinconcito Marino - Todos los derechos reservados</p>
+        <div class="footer-bottom">
+            <div class="footer-copyright">
+                <p>Restaurante Rinconcito Marino 2025. Todos los derechos reservados</p>
+            </div>
+        </div>
+        <div class="floating-buttons">
+            <a href="#" class="btn-float btn-scroll-top" id="scrollTopBtn"><i class="fas fa-chevron-up"></i></a>
+            <a href="https://wa.me/51910872665" target="_blank" class="btn-float btn-whatsapp"><i
+                    class="fab fa-whatsapp"></i></a>
+        </div>
     </footer>
 
     <script>
-
         window.addEventListener('scroll', () => {
             const header = document.querySelector('.header-animado');
-            header.classList.toggle('scrolled', window.scrollY > 50);
+            if (header) header.classList.toggle('scrolled', window.scrollY > 50);
+
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+            if (scrollTopBtn) {
+                if (window.scrollY > 300) scrollTopBtn.classList.add('show');
+                else scrollTopBtn.classList.remove('show');
+            }
         });
 
-        // SCRIPT PARA MENÚ HAMBURGUESA
+        document.getElementById('scrollTopBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
         const menuToggle = document.getElementById('mobile-menu');
-        const navMenu = document.querySelector('.nav-menu');
-
-        menuToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-        });
-
-        // SCRIPT PARA ANIMACIÓN AL HACER SCROLL
-        document.addEventListener('DOMContentLoaded', () => {
-            const observerOptions = {
-                root: null, // viewport
-                rootMargin: '0px',
-                threshold: 0.1 // 10% del elemento visible para activar
-            };
-
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animated');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.zigzag-item').forEach(item => {
-                observer.observe(item);
+        const navMenu = document.querySelector('header nav ul');
+        if (menuToggle && navMenu) {
+            menuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
             });
-        });
+        }
+
+        const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.zigzag-item').forEach(item => observer.observe(item));
     </script>
 </body>
 
