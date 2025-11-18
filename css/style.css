@@ -180,7 +180,7 @@ header nav ul li a:hover {
 .zigzag-item .info {
     width: 50%;
     padding: 100px 80px;
-    background: linear-gradient(145deg, #ffffff, #f8f9fb);
+    background: #fefcf9;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -188,19 +188,20 @@ header nav ul li a:hover {
 }
 
 .zigzag-item .info h2 {
-    font-size: 2.8rem;
+    font-size: 2.5rem;
     font-weight: 700;
-    color: #03396c;
-    letter-spacing: -0.5px;
-    margin-bottom: 25px;
+    color: #0E3C5E;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
     line-height: 1.2;
-    font-family: 'Playfair Display', serif;
+    font-family: 'Poppins', sans-serif;
+    text-transform: uppercase;
 }
 
 .zigzag-item .info p {
-    font-size: 1.3rem;
-    line-height: 1.9;
-    color: #0a3d62;
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #555;
     max-width: 90%;
     font-family: 'Poppins', sans-serif;
 }
@@ -208,24 +209,26 @@ header nav ul li a:hover {
 .contenedor-horario-form {
     display: flex;
     gap: 40px;
-    max-width: 1200px;
+    max-width: 100%; /* MODIFICADO: Quitamos la limitación de ancho máximo */
+    width: 100%; /* MODIFICADO: Ocupamos el 100% del ancho */
     margin: 100px auto;
-    padding: 0 20px;
+    padding: 0 5%; /* MODIFICADO: Usamos padding en porcentaje para mantener un margen */
     flex-wrap: wrap;
-    align-items: flex-start;
+    align-items: stretch;
 }
 
 .horario-section,
-.form-section-derecha {
+.form-section-derecha,
+.map-section-izquierda {
     flex: 1;
     min-width: 300px;
-    padding: 20px;
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .horario-section {
     background: #f0f8ff;
+    padding: 20px;
 }
 
 .horario-section h2,
@@ -305,6 +308,61 @@ header nav ul li a:hover {
     background: #023e8a;
 }
 
+/* --- NUEVOS ESTILOS PARA MAPA E INFO EN COLUMNA IZQUIERDA --- */
+.map-section-izquierda {
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.map-container-embed {
+    width: 100%;
+    height: 800px;
+}
+
+.map-container-embed iframe {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.info-map-below {
+    padding: 30px;
+    text-align: center;
+}
+
+.info-map-below h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+    line-height: 1.2;
+    color: #0E3C5E;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-map-below p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.info-map-below a {
+    color: #0077b6;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    font-size: 1rem;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.info-map-below a:hover {
+    color: #03396c;
+    text-decoration: underline;
+}
+
 footer {
     background: #03396c;
     color: #f5faff;
@@ -373,145 +431,33 @@ footer {
     }
 
     .horario-section,
-    .form-section-derecha {
+    .form-section-derecha,
+    .map-section-izquierda {
         min-width: 100%;
     }
 
     .hero-logo {
         width: 240px;
     }
-
-    /* --- ESTILOS PARA LA NUEVA SECCIÓN DE MAPA E INFORMACIÓN --- */
-
-    .map-and-info-section {
-        padding: 0;
-        /* No necesitamos padding externo, el contenedor interno lo manejará */
-        background-color: #fdf0d6;
-        /* Color de fondo similar al de su body */
+    
+    .map-section-izquierda {
+        margin-bottom: 20px;
     }
 
-    .map-and-info-container {
-        display: flex;
-        /* Activa Flexbox para crear las columnas */
-        max-width: 1400px;
-        /* Ancho máximo similar al de la imagen de referencia */
-        margin: 0 auto;
-        /* Centra el contenedor en la página */
-        min-height: 450px;
-        /* Asegura una altura mínima para la sección */
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        /* Una ligera sombra para destacar */
+    .map-container-embed {
+        height: 250px;
     }
 
-    .map-column {
-        flex: 1;
-        /* Permite que el mapa ocupe el espacio disponible */
-        min-width: 50%;
-        /* Asegura que ocupe al menos la mitad en escritorio */
-        position: relative;
-        /* Para posibles superposiciones o ajustes futuros */
-        background-color: #f0f8ff;
-        /* Color de fondo si el mapa no carga */
+    .info-map-below {
+        padding: 20px;
     }
 
-    .map-column iframe {
-        width: 100%;
-        height: 100%;
-        /* El iframe ocupa el 100% de la altura de su columna */
-        border: 0;
-        display: block;
-        /* Elimina cualquier espacio extra por defecto del iframe */
+    .info-map-below h3 {
+        font-size: 1.6rem;
     }
 
-    .info-column {
-        flex: 1;
-        /* Permite que la información ocupe el espacio disponible */
-        min-width: 40%;
-        /* Asegura que ocupe al menos la mitad en escritorio */
-        padding: 60px 50px;
-        /* Espaciado interno para el texto */
-        background-color: #fefcf9;
-        /* Fondo claro para el texto */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        /* Centra el contenido verticalmente */
-        text-align: left;
-        color: #03396c;
-    }
-
-    .info-column h3 {
-        font-family: 'Playfair Display', serif;
-        font-size: 2.8rem;
-        font-weight: 700;
-        margin-bottom: 25px;
-        line-height: 1.2;
-        color: #0077b6;
-        /* Un color de título distintivo */
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .info-column p {
-        font-size: 1.15rem;
-        line-height: 1.8;
-        margin-bottom: 15px;
-        color: #333;
-    }
-
-    .info-column a {
-        color: #0077b6;
-        /* Color de enlace distintivo */
-        text-decoration: underline;
-        font-weight: 600;
-        transition: color 0.3s ease;
-        font-size: 1.1rem;
-    }
-
-    .info-column a:hover {
-        color: #023e8a;
-    }
-
-
-    /* --- Adaptación para dispositivos móviles (Cuando el ancho es <= 900px) --- */
-    @media (max-width: 900px) {
-        .map-and-info-container {
-            flex-direction: column;
-            /* Apila el mapa y la información verticalmente */
-            min-height: auto;
-            /* Altura automática en móviles */
-            box-shadow: none;
-            /* Elimina la sombra en móviles */
-        }
-
-        .map-column,
-        .info-column {
-            min-width: 100%;
-            /* Ocupan todo el ancho disponible */
-        }
-
-        .map-column iframe {
-            height: 350px;
-            /* Altura fija para el mapa en móviles */
-        }
-
-        .info-column {
-            padding: 40px 30px;
-            /* Reduce el padding en móviles */
-            text-align: center;
-            /* Centra el texto en móviles */
-        }
-
-        .info-column h3 {
-            font-size: 2rem;
-            /* Ajusta el tamaño del título en móviles */
-            margin-bottom: 15px;
-        }
-
-        .info-column p,
-        .info-column a {
-            font-size: 1rem;
-            /* Ajusta el tamaño del texto en móviles */
-        }
+    .info-map-below p,
+    .info-map-below a {
+        font-size: 0.95rem;
     }
 }
