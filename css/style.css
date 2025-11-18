@@ -141,10 +141,10 @@ header nav ul li a:hover {
 
 .zigzag {
     width: 100%;
-    margin: 80px 0; /* Menor margen que el original */
+    margin: 40px 0; /* Menor margen que el original */
     display: flex;
     flex-direction: column;
-    gap: 80px; /* Menor espacio entre elementos */
+    gap: 0px; /* Menor espacio entre elementos */
     padding: 0; /* Quitamos el padding lateral para un look más de ancho completo */
 }
 
