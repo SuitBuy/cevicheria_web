@@ -9,12 +9,13 @@ body {
     background-color: #ffffff;
     color: #03396c;
     line-height: 1.6;
+    overflow-x: hidden;
 }
 
 header.header-animado,
 header.header-fijo {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* <--- ESTA LÍNEA */
     align-items: center;
     padding: 15px 60px;
     width: 100%;
@@ -43,6 +44,14 @@ header .logo img {
     height: 80px;
 }
 
+/* ESTILO DEL BOTÓN HAMBURGUESA (Oculto por defecto en escritorio) */
+.menu-toggle {
+    display: none;
+    font-size: 2rem;
+    color: #f0f0f0;
+    cursor: pointer;
+}
+
 header nav ul {
     display: flex;
     gap: 50px;
@@ -60,6 +69,8 @@ header nav ul li a {
 header nav ul li a:hover {
     color: #3e3b56;
 }
+
+/* ... (ESTILOS DE PDF, HERO, ANIMACIONES SE MANTIENEN IGUAL) ... */
 
 .pdf-container {
     margin-top: 160px;
@@ -139,16 +150,38 @@ header nav ul li a:hover {
     background: #023e8a;
 }
 
+/* ANIMACIONES ZIGZAG */
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-100px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
 .zigzag {
     width: 100%;
     margin: 0px 0;
-    /* Menor margen que el original */
     display: flex;
     flex-direction: column;
     gap: 0px;
-    /* Menor espacio entre elementos */
     padding: 0;
-    /* Quitamos el padding lateral para un look más de ancho completo */
 }
 
 .zigzag-item {
@@ -157,37 +190,46 @@ header nav ul li a:hover {
     justify-content: center;
     flex-direction: row;
     width: 100%;
-    /* Eliminar estilos de tarjeta (tarjeta) */
     border-radius: 0;
     overflow: hidden;
     box-shadow: none;
     transition: none;
     background: none;
+    opacity: 0;
 }
 
-.zigzag-item:hover {
-    transform: none;
-    box-shadow: none;
+.zigzag-item:nth-child(1),
+.zigzag-item:nth-child(3) {
+    transform: translateX(-100px);
 }
 
 .zigzag-item.reverse {
     flex-direction: row-reverse;
+    transform: translateX(100px);
+}
+
+.zigzag-item:nth-child(1).animated,
+.zigzag-item:nth-child(3).animated {
+    animation: fadeInLeft 2s ease-out forwards;
+    animation-delay: 0.2s;
+}
+
+.zigzag-item.reverse.animated {
+    animation: fadeInRight 2s ease-out forwards;
+    animation-delay: 0.4s;
 }
 
 .zigzag-item img {
     width: 50%;
-    height: 1200px;
-    /* <- Este es el valor que define la altura */
+    height: 650px;
     object-fit: cover;
     filter: none;
 }
 
 .zigzag-item .info {
     width: 50%;
-    /* Ajustamos el padding para mantener la legibilidad y centrar */
-    padding: 80px 5%;
+    padding: 120px 5%;
     background: #fefcf9;
-    /* Mantenemos un fondo claro para diferenciar el bloque de texto del fondo de la página */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -206,10 +248,9 @@ header nav ul li a:hover {
 }
 
 .zigzag-item .info p {
-    font-size: 1.6rem;
+    font-size: 1.2rem;
     line-height: 1.8;
     color: #555;
-    /* max-width: 90%; Eliminamos el max-width para usar el 5% de padding lateral */
     font-family: 'Poppins', sans-serif;
 }
 
@@ -217,12 +258,9 @@ header nav ul li a:hover {
     display: flex;
     gap: 40px;
     max-width: 100%;
-    /* MODIFICADO: Quitamos la limitación de ancho máximo */
     width: 100%;
-    /* MODIFICADO: Ocupamos el 100% del ancho */
     margin: 100px auto;
     padding: 0 5%;
-    /* MODIFICADO: Usamos padding en porcentaje para mantener un margen */
     flex-wrap: wrap;
     align-items: stretch;
 }
@@ -318,7 +356,6 @@ header nav ul li a:hover {
     background: #023e8a;
 }
 
-/* --- NUEVOS ESTILOS PARA MAPA E INFO EN COLUMNA IZQUIERDA --- */
 .map-section-izquierda {
     background: #ffffff;
     overflow: hidden;
@@ -419,27 +456,58 @@ footer {
 }
 
 
+/* --- MEDIA QUERY (MÓVIL) --- */
 @media (max-width: 900px) {
-    .zigzag-item {
+
+    /* MOSTRAR BOTÓN HAMBURGUESA */
+    .menu-toggle {
+        display: block;
+    }
+
+    /* CONFIGURAR EL MENÚ PARA QUE SEA DESPLEGABLE */
+    header nav ul {
+        display: none;
+        /* Oculto por defecto */
+        flex-direction: column;
+        width: 100%;
+        position: absolute;
+        top: 100%;
+        /* Debajo del header */
+        left: 0;
+        background-color: #0E3C5E;
+        /* Fondo azul oscuro del header */
+        padding: 20px 0;
+        text-align: center;
+        gap: 20px;
+    }
+
+    /* CLASE PARA MOSTRAR EL MENÚ CON JS */
+    header nav ul.active {
+        display: flex;
+    }
+
+    /* RESPONSIVIDAD DEL ZIGZAG (Image arriba, Texto abajo) */
+    .zigzag-item,
+    .zigzag-item:nth-child(1),
+    .zigzag-item:nth-child(3),
+    .zigzag-item.reverse {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
         flex-direction: column !important;
         text-align: center;
     }
 
-    .zigzag-item.reverse {
-        flex-direction: column !important;
-    }
-
-    .zigzag-item img,
-    .zigzag-item .info {
-        width: 100%;
-        height: auto;
+    .zigzag-item img {
+        width: 100% !important;
+        height: 300px;
+        margin-bottom: 20px;
     }
 
     .zigzag-item .info {
-        padding: 40px 5%;
-        /* Ajustar padding en móvil */
+        width: 100% !important;
+        padding: 20px 5% 40px 5%;
         background: none;
-        /* Quitar fondo en móvil para un diseño más limpio */
     }
 
     .hero-logo {
@@ -467,113 +535,99 @@ footer {
         font-size: 0.95rem;
     }
 
-    /* ... (Líneas 1 a 111 sin cambios) ... */
-    /* --- NUEVAS ANIMACIONES PARA SECCIÓN ZIGZAG (Corregidas) --- */
-    @keyframes fadeInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(-100px);
-        }
+    /* ... (Resto del CSS anterior igual) ... */
 
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
+    /* --- MEDIA QUERY (MÓVIL) --- */
+    /* --- MEDIA QUERY (MÓVIL) --- */
+/* --- MEDIA QUERY (MÓVIL) --- */
+@media (max-width: 900px) {
+
+    /* 1. MOSTRAR BOTÓN HAMBURGUESA */
+    .menu-toggle {
+        display: block;
+        /* Aseguramos que el cursor sea puntero */
+        cursor: pointer; 
     }
 
-    @keyframes fadeInRight {
-        from {
-            opacity: 0;
-            transform: translateX(100px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    /* --- FIN ANIMACIONES --- */
-
-
-    .zigzag {
+    /* 2. CONFIGURACIÓN DEL CONTENEDOR NAV (ESTO ES LO QUE FALTABA) */
+    /* Al poner el nav como absoluto, el header solo "ve" dos elementos: Logo y Botón. 
+       Esto hace que el space-between los mande a los extremos. */
+    nav {
+        position: absolute;
+        top: 100%;
+        left: 0;
         width: 100%;
-        margin: 80px 0;
-        display: flex;
+        z-index: 999;
+    }
+
+    /* 3. CONFIGURAR LA LISTA UL */
+    header nav ul {
+        display: none; /* Oculto por defecto */
         flex-direction: column;
-        gap: 0px;
-        padding: 0;
-    }
-
-    .zigzag-item {
-        display: flex;
-        align-items: stretch;
-        justify-content: center;
-        flex-direction: row;
         width: 100%;
-        /* Eliminar estilos de tarjeta (tarjeta) */
-        border-radius: 0;
-        overflow: hidden;
-        box-shadow: none;
-        transition: none;
-        background: none;
-
-        /* ESTADO INICIAL ANTES DEL SCROLL */
-        opacity: 0;
-        transform: translateX(0);
-        /* Resetear transform inicial */
+        /* Quitamos position: absolute de aquí porque ya lo tiene el padre (nav) */
+        
+        /* Fondo semitransparente y texto a la derecha */
+        background-color: rgba(14, 59, 94, 0.592);
+        padding: 20px 0;
+        text-align: right;
+        padding-right: 30px;
+        gap: 20px;
     }
 
+    /* CLASE PARA MOSTRAR EL MENÚ CON JS */
+    header nav ul.active {
+        display: flex;
+    }
+
+    /* 4. RESPONSIVIDAD DEL ZIGZAG */
+    .zigzag-item,
+    .zigzag-item:nth-child(1),
+    .zigzag-item:nth-child(3),
     .zigzag-item.reverse {
-        flex-direction: row-reverse;
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+        flex-direction: column !important;
+        text-align: center;
     }
-
-    /* ---------------------------------------------------------------- */
-    /* APLICAR ANIMACIÓN SOLO CUANDO SE AÑADE LA CLASE '.animated' POR JS */
-    /* ---------------------------------------------------------------- */
-
-    /* Item 1 y 3: Izquierda */
-    .zigzag-item:nth-child(1).animated,
-    .zigzag-item:nth-child(3).animated {
-        /* La animación viene de la izquierda, por eso se usa 'fadeInLeft' */
-        animation: fadeInLeft 2s ease-out forwards;
-    }
-
-    /* Item 2: Derecha */
-    .zigzag-item.reverse.animated {
-        /* La animación viene de la derecha, por eso se usa 'fadeInRight' */
-        animation: fadeInRight 2s ease-out forwards;
-    }
-
-    /* Añadir retraso para la animación en secuencia, usando la clase 'animated' */
-    .zigzag-item:nth-child(1).animated {
-        animation-delay: 0.2s;
-    }
-
-    .zigzag-item:nth-child(2).animated {
-        animation-delay: 0.4s;
-    }
-
-    .zigzag-item:nth-child(3).animated {
-        animation-delay: 0.6s;
-    }
-
-
-    /* ... (El resto del CSS se mantiene igual, incluyendo la altura de 650px y el padding de 120px) ... */
 
     .zigzag-item img {
-        width: 50%;
-        height: 650px;
-        object-fit: cover;
-        filter: none;
+        width: 100% !important;
+        height: 300px;
+        margin-bottom: 20px;
     }
 
     .zigzag-item .info {
-        width: 50%;
-        padding: 120px 5%;
-        background: #fefcf9;
-        /* ... (otros estilos) ... */
+        width: 100% !important;
+        padding: 20px 5% 40px 5%;
+        background: none;
     }
 
-    /* ... (Resto del CSS sin cambios) ... */
+    /* Resto de ajustes móviles */
+    .hero-logo {
+        width: 240px;
+    }
+
+    .map-section-izquierda {
+        margin-bottom: 20px;
+    }
+
+    .map-container-embed {
+        height: 250px;
+    }
+
+    .info-map-below {
+        padding: 20px;
+    }
+
+    .info-map-below h3 {
+        font-size: 1.6rem;
+    }
+
+    .info-map-below p,
+    .info-map-below a {
+        font-size: 0.95rem;
+    }
+}
 }

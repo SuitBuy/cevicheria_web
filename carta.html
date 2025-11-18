@@ -7,6 +7,7 @@
     <title>Rinconcito Marino - Carta</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 
 <body>
@@ -16,10 +17,15 @@
                 <img src="assets/logo.png" alt="Logo Rinconcito Marino">
             </a>
         </div>
+
+        <div class="menu-toggle" id="mobile-menu">
+            <i class="fas fa-bars"></i>
+        </div>
+
         <nav>
-            <ul>    
+            <ul class="nav-menu">
                 <li><a href="carta.html">Menú</a></li>
-                <li><a href="reserva.html">Reserva</a></li>
+                <li><a href="reservas.html">Reservas</a></li>
                 <li><a href="https://wa.me/51910872665" target="_blank">Contacto</a></li>
             </ul>
         </nav>
@@ -35,6 +41,7 @@
                 <h4>Navegación</h4>
                 <ul>
                     <li><a href="carta.html">Menú</a></li>
+                    <li><a href="reservas.html">Reserva</a></li>
                     <li><a href="https://wa.me/51910872665" target="_blank">Contacto</a></li>
                 </ul>
             </div>
@@ -58,6 +65,17 @@
         </div>
         <p class="copy">&copy; 2025 Rinconcito Marino - Todos los derechos reservados</p>
     </footer>
+
+    <script>
+        // Lógica del menú hamburguesa
+        const menuToggle = document.getElementById('mobile-menu');
+        // Seleccionamos header nav ul por si la clase no está, o usa .nav-menu si prefieres
+        const navMenu = document.querySelector('header nav ul');
+
+        menuToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+    </script>
 </body>
 
 </html>

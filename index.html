@@ -21,10 +21,15 @@
                 <img src="assets/logo.png" alt="Logo Rinconcito Marino">
             </a>
         </div>
+
+        <div class="menu-toggle" id="mobile-menu">
+            <i class="fas fa-bars"></i>
+        </div>
+
         <nav>
-            <ul>
+            <ul class="nav-menu">
                 <li><a href="carta.html">Menú</a></li>
-                <li><a href="reserva.html">Reserva</a></li>
+                <li><a href="reservas.html">Reservas</a></li>
                 <li><a href="https://wa.me/51910872665" target="_blank">Contacto</a></li>
             </ul>
         </nav>
@@ -123,6 +128,7 @@
                 <h4>Navegación</h4>
                 <ul>
                     <li><a href="carta.html">Menú</a></li>
+                    <li><a href="reservas.html">Reservas</a></li>
                     <li><a href="https://wa.me/51910872665" target="_blank">Contacto</a></li>
                 </ul>
             </div>
@@ -148,12 +154,21 @@
     </footer>
 
     <script>
+
         window.addEventListener('scroll', () => {
             const header = document.querySelector('.header-animado');
             header.classList.toggle('scrolled', window.scrollY > 50);
         });
 
-        // NUEVO SCRIPT PARA ANIMACIÓN AL HACER SCROLL
+        // SCRIPT PARA MENÚ HAMBURGUESA
+        const menuToggle = document.getElementById('mobile-menu');
+        const navMenu = document.querySelector('.nav-menu');
+
+        menuToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+
+        // SCRIPT PARA ANIMACIÓN AL HACER SCROLL
         document.addEventListener('DOMContentLoaded', () => {
             const observerOptions = {
                 root: null, // viewport
@@ -165,12 +180,11 @@
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('animated');
-                        observer.unobserve(entry.target); // Dejar de observar después de la animación
+                        observer.unobserve(entry.target);
                     }
                 });
             }, observerOptions);
 
-            // Observar cada item del zigzag
             document.querySelectorAll('.zigzag-item').forEach(item => {
                 observer.observe(item);
             });
