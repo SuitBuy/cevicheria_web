@@ -12,9 +12,6 @@ body {
     overflow-x: hidden;
 }
 
-/* =========================================
-   HEADER Y NAVEGACIÓN
-   ========================================= */
 header.header-animado,
 header.header-fijo {
     display: flex;
@@ -53,7 +50,6 @@ header.header-animado.scrolled .logo img {
     height: 60px;
 }
 
-/* Menú Desktop */
 header nav ul {
     display: flex;
     gap: 50px;
@@ -74,7 +70,6 @@ header nav ul li a:hover {
     color: #d4a373;
 }
 
-/* Botón Hamburguesa (Móvil) */
 .menu-toggle {
     display: none;
     font-size: 1.8rem;
@@ -82,9 +77,6 @@ header nav ul li a:hover {
     cursor: pointer;
 }
 
-/* =========================================
-   HERO SECTION (HOME)
-   ========================================= */
 .hero {
     position: relative;
     width: 100%;
@@ -134,9 +126,7 @@ header nav ul li a:hover {
     to { opacity: 1; transform: scale(1); }
 }
 
-/* =========================================
-   ZIGZAG SECTION
-   ========================================= */
+
 .zigzag {
     width: 100%;
     margin: 0px 0;
@@ -200,9 +190,7 @@ header nav ul li a:hover {
     color: #555;
 }
 
-/* =========================================
-   SECCIONES GENERALES (Mapa, Formulario)
-   ========================================= */
+
 .contenedor-horario-form {
     display: flex;
     flex-wrap: wrap;
@@ -283,7 +271,6 @@ header nav ul li a:hover {
     background-color: #0a2a42;
 }
 
-/* --- CONTENEDOR PDF (CARTA) --- */
 .pdf-container {
     margin: 140px auto 60px;
     max-width: 1000px;
@@ -298,9 +285,7 @@ header nav ul li a:hover {
 }
 
 
-/* =========================================
-   WIZARD DE RESERVAS (Integrado)
-   ========================================= */
+
 .wizard-wrapper {
     max-width: 1000px;
     margin: 140px auto 80px;
@@ -346,7 +331,6 @@ header nav ul li a:hover {
     margin-right: 5px;
 }
 
-/* Paneles del Wizard */
 .step-panel {
     display: none;
     animation: fadeIn 0.5s ease;
@@ -388,7 +372,6 @@ header nav ul li a:hover {
     text-decoration: underline;
 }
 
-/* Elementos del Wizard */
 .people-grid {
     display: flex;
     justify-content: center;
@@ -463,7 +446,6 @@ header nav ul li a:hover {
     border-color: #0E3C5E;
 }
 
-/* Layout Final del Wizard */
 .final-layout {
     display: flex;
     gap: 40px;
@@ -567,9 +549,7 @@ header nav ul li a:hover {
 }
 
 
-/* =========================================
-   FOOTER PREMIUM (Estilo Kauza)
-   ========================================= */
+
 footer {
     background-color: #0b1d2a;
     color: #fff;
@@ -755,9 +735,7 @@ footer {
 }
 
 
-/* =========================================
-   MEDIA QUERIES (RESPONSIVIDAD)
-   ========================================= */
+
 @media (max-width: 900px) {
     
     /* Header Móvil */
@@ -793,7 +771,6 @@ footer {
         display: flex;
     }
 
-    /* Zigzag Móvil */
     .zigzag-item,
     .zigzag-item:nth-child(odd),
     .zigzag-item:nth-child(even) {
