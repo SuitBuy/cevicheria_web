@@ -16,7 +16,7 @@ header.header-fijo {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 40px;
+    padding: 15px 60px;
     width: 100%;
     position: fixed;
     top: 0;
@@ -45,7 +45,7 @@ header .logo img {
 
 header nav ul {
     display: flex;
-    gap: 100px;
+    gap: 50px;
     list-style: none;
 }
 
@@ -380,4 +380,5 @@ footer {
     .hero-logo {
         width: 240px;
     }
+    
 }
