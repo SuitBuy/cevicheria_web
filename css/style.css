@@ -141,11 +141,14 @@ header nav ul li a:hover {
 
 .zigzag {
     width: 100%;
-    margin: 0px 0; /* Menor margen que el original */
+    margin: 0px 0;
+    /* Menor margen que el original */
     display: flex;
     flex-direction: column;
-    gap: 0px; /* Menor espacio entre elementos */
-    padding: 0; /* Quitamos el padding lateral para un look más de ancho completo */
+    gap: 0px;
+    /* Menor espacio entre elementos */
+    padding: 0;
+    /* Quitamos el padding lateral para un look más de ancho completo */
 }
 
 .zigzag-item {
@@ -173,7 +176,8 @@ header nav ul li a:hover {
 
 .zigzag-item img {
     width: 50%;
-    height: 1200px; /* <- Este es el valor que define la altura */
+    height: 1200px;
+    /* <- Este es el valor que define la altura */
     object-fit: cover;
     filter: none;
 }
@@ -181,8 +185,9 @@ header nav ul li a:hover {
 .zigzag-item .info {
     width: 50%;
     /* Ajustamos el padding para mantener la legibilidad y centrar */
-    padding: 80px 5%; 
-    background: #fefcf9; /* Mantenemos un fondo claro para diferenciar el bloque de texto del fondo de la página */
+    padding: 80px 5%;
+    background: #fefcf9;
+    /* Mantenemos un fondo claro para diferenciar el bloque de texto del fondo de la página */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -211,10 +216,13 @@ header nav ul li a:hover {
 .contenedor-horario-form {
     display: flex;
     gap: 40px;
-    max-width: 100%; /* MODIFICADO: Quitamos la limitación de ancho máximo */
-    width: 100%; /* MODIFICADO: Ocupamos el 100% del ancho */
+    max-width: 100%;
+    /* MODIFICADO: Quitamos la limitación de ancho máximo */
+    width: 100%;
+    /* MODIFICADO: Ocupamos el 100% del ancho */
     margin: 100px auto;
-    padding: 0 5%; /* MODIFICADO: Usamos padding en porcentaje para mantener un margen */
+    padding: 0 5%;
+    /* MODIFICADO: Usamos padding en porcentaje para mantener un margen */
     flex-wrap: wrap;
     align-items: stretch;
 }
@@ -428,14 +436,16 @@ footer {
     }
 
     .zigzag-item .info {
-        padding: 40px 5%; /* Ajustar padding en móvil */
-        background: none; /* Quitar fondo en móvil para un diseño más limpio */
+        padding: 40px 5%;
+        /* Ajustar padding en móvil */
+        background: none;
+        /* Quitar fondo en móvil para un diseño más limpio */
     }
 
     .hero-logo {
         width: 240px;
     }
-    
+
     .map-section-izquierda {
         margin-bottom: 20px;
     }
@@ -456,5 +466,114 @@ footer {
     .info-map-below a {
         font-size: 0.95rem;
     }
-    
+
+    /* ... (Líneas 1 a 111 sin cambios) ... */
+    /* --- NUEVAS ANIMACIONES PARA SECCIÓN ZIGZAG (Corregidas) --- */
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-100px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* --- FIN ANIMACIONES --- */
+
+
+    .zigzag {
+        width: 100%;
+        margin: 80px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0px;
+        padding: 0;
+    }
+
+    .zigzag-item {
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        flex-direction: row;
+        width: 100%;
+        /* Eliminar estilos de tarjeta (tarjeta) */
+        border-radius: 0;
+        overflow: hidden;
+        box-shadow: none;
+        transition: none;
+        background: none;
+
+        /* ESTADO INICIAL ANTES DEL SCROLL */
+        opacity: 0;
+        transform: translateX(0);
+        /* Resetear transform inicial */
+    }
+
+    .zigzag-item.reverse {
+        flex-direction: row-reverse;
+    }
+
+    /* ---------------------------------------------------------------- */
+    /* APLICAR ANIMACIÓN SOLO CUANDO SE AÑADE LA CLASE '.animated' POR JS */
+    /* ---------------------------------------------------------------- */
+
+    /* Item 1 y 3: Izquierda */
+    .zigzag-item:nth-child(1).animated,
+    .zigzag-item:nth-child(3).animated {
+        /* La animación viene de la izquierda, por eso se usa 'fadeInLeft' */
+        animation: fadeInLeft 2s ease-out forwards;
+    }
+
+    /* Item 2: Derecha */
+    .zigzag-item.reverse.animated {
+        /* La animación viene de la derecha, por eso se usa 'fadeInRight' */
+        animation: fadeInRight 2s ease-out forwards;
+    }
+
+    /* Añadir retraso para la animación en secuencia, usando la clase 'animated' */
+    .zigzag-item:nth-child(1).animated {
+        animation-delay: 0.2s;
+    }
+
+    .zigzag-item:nth-child(2).animated {
+        animation-delay: 0.4s;
+    }
+
+    .zigzag-item:nth-child(3).animated {
+        animation-delay: 0.6s;
+    }
+
+
+    /* ... (El resto del CSS se mantiene igual, incluyendo la altura de 650px y el padding de 120px) ... */
+
+    .zigzag-item img {
+        width: 50%;
+        height: 650px;
+        object-fit: cover;
+        filter: none;
+    }
+
+    .zigzag-item .info {
+        width: 50%;
+        padding: 120px 5%;
+        background: #fefcf9;
+        /* ... (otros estilos) ... */
+    }
+
+    /* ... (Resto del CSS sin cambios) ... */
 }

@@ -44,7 +44,7 @@
         <div class="zigzag-item">
             <img src="assets/ceviche.jpg" alt="Ceviche fresco">
             <div class="info">
-                <h2>EL SABOR DE LA COSTA PERUANA</h2>
+                <h2>NUESTRA ESENCIA MARINA</h2>
                 <p>En Rinconcito Marino, somos más que una cevichería: somos un homenaje a la frescura de nuestro mar y
                     a la riqueza de la tradición culinaria peruana. Nacimos con la misión de llevar el sabor auténtico
                     de la costa a tu mesa, utilizando ingredientes de la más alta calidad y un cariño en cada plato que
@@ -69,8 +69,8 @@
             <img src="assets/causa.jpg" alt="Causa Rellena">
             <div class="info">
                 <h2>HORARIOS DE ATENCIÓN</h2>
-                <p>Lunes a Sábado: 12:00 PM a 10:00 PM</p>
-                <p>Domingos: 12:00 PM a 5:00 PM</p>
+                <p><strong>Lunes a Sábado:</strong> 12:00 PM a 10:00 PM</p>
+                <p><strong>Domingos:</strong> 12:00 PM a 5:00 PM</p>
             </div>
         </div>
     </section>
@@ -151,6 +151,29 @@
         window.addEventListener('scroll', () => {
             const header = document.querySelector('.header-animado');
             header.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // NUEVO SCRIPT PARA ANIMACIÓN AL HACER SCROLL
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                root: null, // viewport
+                rootMargin: '0px',
+                threshold: 0.1 // 10% del elemento visible para activar
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animated');
+                        observer.unobserve(entry.target); // Dejar de observar después de la animación
+                    }
+                });
+            }, observerOptions);
+
+            // Observar cada item del zigzag
+            document.querySelectorAll('.zigzag-item').forEach(item => {
+                observer.observe(item);
+            });
         });
     </script>
 </body>
