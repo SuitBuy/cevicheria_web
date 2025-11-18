@@ -141,7 +141,7 @@ header nav ul li a:hover {
 
 .zigzag {
     width: 100%;
-    margin: 40px 0; /* Menor margen que el original */
+    margin: 0px 0; /* Menor margen que el original */
     display: flex;
     flex-direction: column;
     gap: 0px; /* Menor espacio entre elementos */
@@ -173,9 +173,9 @@ header nav ul li a:hover {
 
 .zigzag-item img {
     width: 50%;
-    height: 500px;
+    height: 1200px; /* <- Este es el valor que define la altura */
     object-fit: cover;
-    filter: none; /* Eliminar filtro de brillo */
+    filter: none;
 }
 
 .zigzag-item .info {
@@ -201,7 +201,7 @@ header nav ul li a:hover {
 }
 
 .zigzag-item .info p {
-    font-size: 1.2rem;
+    font-size: 1.6rem;
     line-height: 1.8;
     color: #555;
     /* max-width: 90%; Eliminamos el max-width para usar el 5% de padding lateral */
