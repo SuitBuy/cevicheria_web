@@ -153,42 +153,65 @@
     </footer>
 
     <script>
+        // Evento que se ejecuta cada vez que el usuario hace scroll en la página
         window.addEventListener('scroll', () => {
+
+            // Selecciona el header que tendrá animación al hacer scroll
             const header = document.querySelector('.header-animado');
+
+            // Si existe, añade o quita la clase "scrolled" cuando se baja más de 50px
             if (header) header.classList.toggle('scrolled', window.scrollY > 50);
 
+            // Botón para volver arriba
             const scrollTopBtn = document.getElementById('scrollTopBtn');
+
             if (scrollTopBtn) {
+                // Muestra el botón si se baja más de 300px
                 if (window.scrollY > 300) scrollTopBtn.classList.add('show');
+                // Lo oculta si se sube por encima de 300px
                 else scrollTopBtn.classList.remove('show');
             }
         });
 
+        // Evento para hacer que el botón "scrollTopBtn" suba la página suavemente
         document.getElementById('scrollTopBtn').addEventListener('click', (e) => {
-            e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            e.preventDefault(); // Evita que se ejecute cualquier acción por defecto
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Hace scroll hacia arriba suave
         });
 
+        // Variables para controlar el menú móvil
         const menuToggle = document.getElementById('mobile-menu');
         const navMenu = document.querySelector('header nav ul');
+
         if (menuToggle && navMenu) {
+            // Cuando se hace click en el botón del menú móvil
             menuToggle.addEventListener('click', () => {
-                navMenu.classList.toggle('active');
+                navMenu.classList.toggle('active'); // Muestra u oculta el menú
             });
         }
 
-        const observerOptions = { root: null, rootMargin: '0px', threshold: 0.1 };
+        // Configuración del IntersectionObserver
+        const observerOptions = {
+            root: null,             // Usa la ventana del navegador como área de observación
+            rootMargin: '0px',      // Sin margen extra
+            threshold: 0.1          // Se activa cuando el 10% del elemento es visible
+        };
+
+        // Crea un observer que detecta cuando los elementos entran a la vista
         const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
+                // Si el elemento es visible
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('animated');
-                    observer.unobserve(entry.target);
+                    entry.target.classList.add('animated'); // Le agrega la animación
+                    observer.unobserve(entry.target); // Deja de observarlo (solo se anima una vez)
                 }
             });
         }, observerOptions);
 
+        // Selecciona todos los elementos con la clase "zigzag-item" y los observa
         document.querySelectorAll('.zigzag-item').forEach(item => observer.observe(item));
     </script>
+
 </body>
 
 </html>
