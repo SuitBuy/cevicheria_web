@@ -689,16 +689,6 @@ footer {
     color: #888;
 }
 
-/* Botones Flotantes */
-.floating-buttons {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    z-index: 9999;
-}
 
 .btn-float {
     width: 50px;
@@ -814,12 +804,7 @@ footer {
         justify-content: center;
     }
     
-    .floating-buttons {
-        bottom: 20px;
-        right: 20px;
-    }
 
-    /* Wizard Móvil */
     .final-layout {
         flex-direction: column;
     }
