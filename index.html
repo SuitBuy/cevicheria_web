@@ -116,7 +116,6 @@
                 <ul>
                     <li><a href="#">QUIÉNES SOMOS</a></li>
                     <li><a href="carta.html">NUESTRA CARTA</a></li>
-                    <li><a href="#">HORARIOS</a></li>
                     <li><a href="https://maps.google.com">UBÍCANOS</a></li>
                 </ul>
             </div>
@@ -136,7 +135,6 @@
                 <div class="footer-action-buttons">
                     <a href="reservas.html" class="btn-outline">Reservas</a>
                     <a href="carta.html" class="btn-outline">Carta</a>
-                    <a href="#" class="btn-outline">Pedidos Online</a>
                 </div>
             </div>
         </div>
@@ -145,36 +143,26 @@
                 <p>Restaurante Rinconcito Marino 2025. Todos los derechos reservados</p>
             </div>
         </div>
+        <div class="floating-buttons">
+            <a href="#" class="btn-float btn-scroll-top" id="scrollTopBtn"><i class="fas fa-chevron-up"></i></a>
+            <a href="https://wa.me/51910872665" target="_blank" class="btn-float btn-whatsapp"><i
+                    class="fab fa-whatsapp"></i></a>
+        </div>
     </footer>
 
-    <script>
-        // Evento que se ejecuta cada vez que el usuario hace scroll en la página
+<script>
+        // 1. EVENTO SCROLL (Solo para el Header)
         window.addEventListener('scroll', () => {
-
             // Selecciona el header que tendrá animación al hacer scroll
             const header = document.querySelector('.header-animado');
 
             // Si existe, añade o quita la clase "scrolled" cuando se baja más de 50px
             if (header) header.classList.toggle('scrolled', window.scrollY > 50);
-
-            // Botón para volver arriba
-            const scrollTopBtn = document.getElementById('scrollTopBtn');
-
-            if (scrollTopBtn) {
-                // Muestra el botón si se baja más de 300px
-                if (window.scrollY > 300) scrollTopBtn.classList.add('show');
-                // Lo oculta si se sube por encima de 300px
-                else scrollTopBtn.classList.remove('show');
-            }
         });
 
-        // Evento para hacer que el botón "scrollTopBtn" suba la página suavemente
-        document.getElementById('scrollTopBtn').addEventListener('click', (e) => {
-            e.preventDefault(); // Evita que se ejecute cualquier acción por defecto
-            window.scrollTo({ top: 0, behavior: 'smooth' }); // Hace scroll hacia arriba suave
-        });
+        // (Aquí hemos borrado toda la lógica del botón scrollTopBtn)
 
-        // Variables para controlar el menú móvil
+        // 2. MENÚ MÓVIL
         const menuToggle = document.getElementById('mobile-menu');
         const navMenu = document.querySelector('header nav ul');
 
@@ -185,6 +173,7 @@
             });
         }
 
+        // 3. ANIMACIÓN ZIG ZAG (IntersectionObserver)
         // Configuración del IntersectionObserver
         const observerOptions = {
             root: null,             // Usa la ventana del navegador como área de observación

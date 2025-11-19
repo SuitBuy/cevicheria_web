@@ -46,10 +46,6 @@ header .logo img {
     transition: height 0.3s;
 }
 
-header.header-animado.scrolled .logo img {
-    height: 60px;
-}
-
 header nav ul {
     display: flex;
     gap: 50px;
@@ -487,7 +483,6 @@ header nav ul li a:hover {
     font-family: 'Poppins', sans-serif;
 }
 
-/* Tarjeta Resumen */
 .summary-card {
     background-color: #1a1a1a;
     color: #fff;
@@ -688,7 +683,6 @@ footer {
     font-size: 0.8rem;
     color: #888;
 }
-
 
 .btn-float {
     width: 50px;
