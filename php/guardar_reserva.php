@@ -1,26 +1,38 @@
 <?php
-require 'conexion.php'; 
+// --- MODO DEPURACIÓN: ACTIVADO ---
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
+require 'conexion.php';
+
+// Función para guardar errores en un archivo de texto
+function registrarLog($mensaje) {
+    $fecha = date("Y-m-d H:i:s");
+    // Guardamos en el archivo log
+    file_put_contents("debug_log.txt", "[$fecha] $mensaje" . PHP_EOL, FILE_APPEND);
+}
+
+// Funciones de alerta
 function alertaYRedirigir($mensaje, $url) {
-    echo "<script>
-            alert('" . addslashes($mensaje) . "');
-            window.location.href = '$url';
-          </script>";
+    echo "<script>alert('" . addslashes($mensaje) . "'); window.location.href = '$url';</script>";
     exit;
 }
 
 function alertaYVolver($mensaje) {
-    echo "<script>
-            alert('" . addslashes($mensaje) . "');
-            window.history.back();
-          </script>";
+    echo "<script>alert('" . addslashes($mensaje) . "'); window.history.back();</script>";
     exit;
 }
 
+registrarLog("--- NUEVA INTENTO DE RESERVA ---");
+
+// 1. Validar que lleguen datos
 if (empty($_POST)) {
-    alertaYVolver("Error: No se enviaron datos.");
+    registrarLog("Error: $_POST está vacío.");
+    die("Error: No se recibieron datos.");
 }
 
+// 2. Recibir datos
 $fecha = $_POST['fecha'] ?? '';
 $hora = $_POST['hora'] ?? '';
 $personas = isset($_POST['personas']) ? intval($_POST['personas']) : 0;
@@ -31,57 +43,55 @@ $edad = $_POST['edad'] ?? '';
 $email = $_POST['email'] ?? '';
 $telefono = $_POST['telefono'] ?? '';
 
-// Validación (Ya NO valida código)
+// LOGUEAR TODOS LOS DATOS (Para que veas que sí llegan)
+registrarLog("Datos recibidos:");
+registrarLog(" - Cliente: $nombre $apellido");
+registrarLog(" - DNI: $dni | Edad: $edad");
+registrarLog(" - Contacto: $telefono | $email");
+registrarLog(" - Reserva: $fecha a las $hora para $personas personas");
+
+// 3. Validar campos obligatorios
 if (empty($fecha) || empty($hora) || $personas <= 0 || empty($nombre) || empty($telefono)) {
-    alertaYVolver("Faltan datos obligatorios. Verifica fecha, hora y teléfono.");
+    registrarLog("Faltan datos obligatorios.");
+    alertaYVolver("Faltan datos obligatorios.");
 }
 
-// Lógica de Aforo
-$limite_aforo = 30; 
-$sql_aforo = "SELECT SUM(personas) as total FROM reservas WHERE fecha = ? AND hora = ? AND estado != 'Rechazado' AND estado != 'Expirado'";
-$stmt_check = $conn->prepare($sql_aforo);
-
-if ($stmt_check) {
-    $stmt_check->bind_param("ss", $fecha, $hora);
-    $stmt_check->execute();
-    $resultado = $stmt_check->get_result();
-    $fila = $resultado->fetch_assoc();
-    $ocupados = $fila['total'] ? intval($fila['total']) : 0;
-    $stmt_check->close();
-
-    if (($ocupados + $personas) > $limite_aforo) {
-        $disponibles = $limite_aforo - $ocupados;
-        alertaYVolver("Lo sentimos, a las $hora solo quedan $disponibles lugares disponibles.");
-    }
-}
-
-
+// 4. Insertar en BD
+// NOTA: El estado por defecto es 'Pendiente'
 $sql_insertar = "INSERT INTO reservas (nombres, apellidos, dni, edad, email, telefono, personas, fecha, hora, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')";
+
 $stmt = $conn->prepare($sql_insertar);
 
-if ($stmt) {
-
-    $stmt->bind_param("sssisssis", 
-        $nombre, 
-        $apellido, 
-        $dni, 
-        $edad, 
-        $email, 
-        $telefono,
-        $personas, 
-        $fecha, 
-        $hora
-    );
-
-    if ($stmt->execute()) {
-        alertaYRedirigir("¡Solicitud enviada! En breve te escribiremos al WhatsApp para coordinar el pago de S/ 20.00 y confirmar tu mesa.", "../index.html");
-    } else {
-        alertaYVolver("Error al guardar en BD: " . $stmt->error);
-    }
-    $stmt->close();
-} else {
-    alertaYVolver("Error preparando la consulta SQL.");
+if (!$stmt) {
+    registrarLog("Error CRÍTICO en prepare(): " . $conn->error);
+    die("Error en la consulta SQL: " . $conn->error);
 }
 
+// --- CORRECCIÓN IMPORTANTE DE TIPOS ---
+// s = string (texto), i = integer (número)
+// Antes fallaba en la fecha. Ahora usamos:
+// s (nombre), s (apellido), s (dni), i (edad), s (email), s (telefono), i (personas), s (fecha), s (hora)
+// Total: sssisssss
+$stmt->bind_param("sssisssss", 
+    $nombre, 
+    $apellido, 
+    $dni, 
+    $edad, 
+    $email, 
+    $telefono,
+    $personas, 
+    $fecha, 
+    $hora
+);
+
+if ($stmt->execute()) {
+    registrarLog("¡EXITO! Reserva guardada correctamente en la BD.");
+    alertaYRedirigir("¡Solicitud enviada! En breve te escribiremos al WhatsApp para coordinar el pago de S/ 20.00 y confirmar tu mesa.", "../index.html");
+} else {
+    registrarLog("Error al ejecutar execute(): " . $stmt->error);
+    echo "<h1>Error al guardar:</h1><p>" . $stmt->error . "</p>";
+}
+
+$stmt->close();
 $conn->close();
 ?>
