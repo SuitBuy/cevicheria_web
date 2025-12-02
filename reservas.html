@@ -89,46 +89,55 @@
                 <div class="final-layout">
                     <div class="form-column">
                         <h2 class="step-title" style="text-align: left;">Completa tus datos</h2>
-                        <form id="clientForm">
+
+                        <form id="clientForm" action="php/guardar_reserva.php" method="POST">
+
+                            <input type="hidden" id="h_personas" name="personas">
+                            <input type="hidden" id="h_fecha" name="fecha">
+                            <input type="hidden" id="h_hora" name="hora">
+
                             <div class="form-row">
                                 <div class="input-group">
                                     <label>Nombres</label>
-                                    <input type="text" id="nombre" placeholder="Tu nombre" required>
+                                    <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
                                 </div>
                                 <div class="input-group">
                                     <label>Apellidos</label>
-                                    <input type="text" id="apellido" placeholder="Tu apellido" required>
+                                    <input type="text" id="apellido" name="apellido" placeholder="Tu apellido" required>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="input-group">
                                     <label>DNI</label>
-                                    <input type="tel" id="dni" placeholder="8 dígitos" maxlength="8" pattern="\d{8}"
-                                        required>
+                                    <input type="tel" id="dni" name="dni" placeholder="8 dígitos" maxlength="8"
+                                        pattern="\d{8}" required>
                                 </div>
                                 <div class="input-group">
                                     <label>Edad</label>
-                                    <input type="number" id="edad" placeholder="Ej. 25" min="18" required>
+                                    <input type="number" id="edad" name="edad" placeholder="Ej. 25" min="18" required>
                                 </div>
                             </div>
                             <div class="input-group">
                                 <label>Correo Electrónico</label>
-                                <input type="email" id="email" placeholder="correo@ejemplo.com" required>
+                                <input type="email" id="email" name="email" placeholder="correo@ejemplo.com" required>
                             </div>
                             <div class="input-group">
                                 <label>Número de Teléfono</label>
-                                <input type="tel" id="telefono" placeholder="999 999 999" maxlength="9" required>
+                                <input type="tel" id="telefono" name="telefono" placeholder="999 999 999" maxlength="9"
+                                    required>
                             </div>
 
-                            <div class="input-group" style="background: #eefec3; padding: 15px; border-radius: 8px; margin-top:10px; border: 1px dashed #6f2dbd;">
+                            <div class="input-group"
+                                style="background: #eefec3; padding: 15px; border-radius: 8px; margin-top:10px; border: 1px dashed #6f2dbd;">
                                 <label style="color: #6f2dbd; font-weight: bold;">
                                     <i class="fas fa-qrcode"></i> Pago Yape / Plin
                                 </label>
                                 <p style="font-size: 0.8rem; margin-bottom: 10px; color: #333;">
-                                    Yapea al <strong>910 872 665</strong> y coloca el código de operación aquí para confirmar tu reserva:
+                                    Yapea al <strong>910 872 665</strong> y coloca el código de operación:
                                 </p>
-                                <input type="text" id="codigo_operacion" placeholder="Ej. 123456" required 
-                                       style="border: 2px solid #6f2dbd; background: white;">
+                                <input type="text" id="codigo_operacion" name="codigo_operacion"
+                                    placeholder="Ej. 123456" required
+                                    style="border: 2px solid #6f2dbd; background: white;">
                             </div>
                         </form>
                     </div>
@@ -144,6 +153,7 @@
                             <div class="summary-row"><i class="far fa-calendar-alt"></i> <span
                                     id="sumFecha">--/--/----</span></div>
                             <div class="summary-row"><i class="far fa-clock"></i> <span id="sumHora">--:--</span></div>
+
                             <button type="button" class="btn-confirm" onclick="finalizeReservation()">CONFIRMAR
                                 RESERVA</button>
                         </div>
@@ -163,7 +173,7 @@
                 <ul>
                     <li><a href="index.html">QUIÉNES SOMOS</a></li>
                     <li><a href="carta.html">NUESTRA CARTA</a></li>
-                    <li><a href="https://maps.google.com">UBÍCANOS</a></li>
+                    <li><a href="#">UBÍCANOS</a></li>
                 </ul>
             </div>
             <div class="footer-col">
@@ -193,7 +203,7 @@
     </footer>
 
     <script>
-        // Variables globales
+        // Variables globales para la lógica visual
         let reserva = { personas: 0, fecha: '', hora: '' };
 
         function goToStep(stepNumber) {
@@ -214,7 +224,6 @@
             reserva.personas = num;
             document.getElementById('sumPersonas').innerText = num + (num === 1 ? ' persona' : ' personas');
             goToStep(2);
-            // Establecer fecha mínima a hoy
             const dateInput = document.getElementById('dateInput');
             dateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
         }
@@ -224,7 +233,6 @@
             const parts = input.value.split('-');
             const dateVal = new Date(parts[0], parts[1] - 1, parts[2]);
 
-            // Validación de Domingo (0)
             if (dateVal.getDay() === 0) {
                 document.getElementById('dateError').innerText = "No atendemos los domingos.";
                 input.value = "";
@@ -243,76 +251,39 @@
             goToStep(4);
         }
 
-        // --- FUNCIÓN PRINCIPAL DE ENVÍO (MODIFICADA: SIN JSON) ---
+        // --- FUNCIÓN MODIFICADA: ENVÍO CLÁSICO SIN JSON ---
         function finalizeReservation() {
-            // 1. Obtener valores de los inputs
+            // 1. Obtener valores de los inputs visibles
             const nombre = document.getElementById('nombre').value.trim();
             const apellido = document.getElementById('apellido').value.trim();
             const dni = document.getElementById('dni').value.trim();
             const edad = document.getElementById('edad').value;
             const email = document.getElementById('email').value.trim();
             const telefono = document.getElementById('telefono').value.trim();
-            const codigo_operacion = document.getElementById('codigo_operacion').value.trim();
+            const codigo = document.getElementById('codigo_operacion').value.trim();
 
-            // 2. Validaciones básicas en el frontend
+            // 2. Validaciones básicas
             if (!nombre || !apellido || !dni || !edad || !email || !telefono)
                 return alert("Por favor, completa todos tus datos personales.");
-            
-            if (!codigo_operacion)
-                return alert("Es necesario el código de operación de Yape/Plin para confirmar.");
-
+            if (!codigo)
+                return alert("Es necesario el código de operación de Yape/Plin.");
             if (dni.length !== 8) return alert("DNI inválido (debe tener 8 dígitos)");
             if (telefono.length < 9) return alert("Teléfono inválido");
             if (edad < 18) return alert("Debes ser mayor de edad para reservar");
 
-            // 3. Crear FormData (ESTO ES LA CLAVE: simula un formulario HTML normal)
-            const formData = new FormData();
-            
-            // Agregamos los datos de la reserva
-            formData.append('personas', reserva.personas);
-            formData.append('fecha', reserva.fecha);
-            formData.append('hora', reserva.hora);
-            
-            // Agregamos los datos del cliente
-            formData.append('nombre', nombre);
-            formData.append('apellido', apellido);
-            formData.append('dni', dni);
-            formData.append('edad', edad);
-            formData.append('email', email);
-            formData.append('telefono', telefono);
-            formData.append('codigo_operacion', codigo_operacion);
+            // 3. PASAR DATOS DE LA RESERVA A LOS INPUTS OCULTOS
+            document.getElementById('h_personas').value = reserva.personas;
+            document.getElementById('h_fecha').value = reserva.fecha;
+            document.getElementById('h_hora').value = reserva.hora;
 
-            // 4. Feedback visual al usuario
+            // 4. ENVÍO NATIVO DEL FORMULARIO (Recargará la página hacia PHP)
             const btnConfirm = document.querySelector('.btn-confirm');
-            const originalText = btnConfirm.innerText;
             btnConfirm.innerText = "ENVIANDO...";
             btnConfirm.disabled = true;
 
-            // 5. Enviar usando fetch (Sin header Content-Type JSON)
-            // El navegador detectará que es FormData y pondrá el header correcto automáticamente
-            fetch('php/guardar_reserva.php', {
-                method: 'POST',
-                body: formData 
-            })
-            .then(response => response.json()) // Esperamos la respuesta del servidor
-            .then(data => {
-                if (data.success) {
-                    alert("✅ " + data.message);
-                    window.location.href = "index.html"; // Redirigir al éxito
-                } else {
-                    alert("⚠️ " + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("Hubo un error al conectar con el servidor. Inténtalo de nuevo.");
-            })
-            .finally(() => {
-                // Restaurar botón
-                btnConfirm.innerText = originalText;
-                btnConfirm.disabled = false;
-            });
+            document.getElementById('clientForm').submit();
         }
     </script>
 </body>
+
 </html>

@@ -1,20 +1,34 @@
 <?php
-// Mantenemos la respuesta en JSON solo para que el JS sepa si mostrar la alerta de éxito o error
-header('Content-Type: application/json; charset=utf-8');
+// SIN HEADER CONTENT-TYPE JSON
 require 'conexion.php'; 
 
-// VALIDACIÓN 1: Verificar que lleguen datos por el método POST "normal"
-if (empty($_POST)) {
-    echo json_encode(["success" => false, "message" => "El servidor no recibió datos (POST vacío)."]);
+// Función auxiliar para alertas y redirección
+function alertaYRedirigir($mensaje, $url) {
+    echo "<script>
+            alert('" . addslashes($mensaje) . "');
+            window.location.href = '$url';
+          </script>";
     exit;
 }
 
-// RECOLECCIÓN DE DATOS (Directamente de $_POST, sin JSON)
-// Usamos el operador ?? para evitar errores si falta algún campo
+// Función auxiliar para alertas y volver atrás
+function alertaYVolver($mensaje) {
+    echo "<script>
+            alert('" . addslashes($mensaje) . "');
+            window.history.back();
+          </script>";
+    exit;
+}
+
+// 1. Validar que vengan datos
+if (empty($_POST)) {
+    alertaYVolver("Error: No se enviaron datos.");
+}
+
+// 2. Recolección de datos
 $fecha = $_POST['fecha'] ?? '';
 $hora = $_POST['hora'] ?? '';
 $personas = isset($_POST['personas']) ? intval($_POST['personas']) : 0;
-
 $nombre = $_POST['nombre'] ?? '';
 $apellido = $_POST['apellido'] ?? '';
 $dni = $_POST['dni'] ?? '';
@@ -23,15 +37,13 @@ $email = $_POST['email'] ?? '';
 $telefono = $_POST['telefono'] ?? '';
 $codigo = $_POST['codigo_operacion'] ?? '';
 
-// VALIDACIÓN 2: Campos obligatorios
+// 3. Validación de campos obligatorios
 if (empty($fecha) || empty($hora) || $personas <= 0 || empty($nombre) || empty($codigo)) {
-    echo json_encode(["success" => false, "message" => "Faltan datos obligatorios. Verifica fecha, hora y código Yape."]);
-    exit;
+    alertaYVolver("Faltan datos obligatorios. Verifica fecha, hora y código Yape.");
 }
 
-// --- LOGICA DE AFORO (Máximo 30 personas por turno) ---
+// 4. Lógica de Aforo
 $limite_aforo = 30; 
-
 $sql_aforo = "SELECT SUM(personas) as total FROM reservas WHERE fecha = ? AND hora = ? AND estado != 'Rechazado' AND estado != 'Expirado'";
 $stmt_check = $conn->prepare($sql_aforo);
 
@@ -45,12 +57,13 @@ if ($stmt_check) {
 
     if (($ocupados + $personas) > $limite_aforo) {
         $disponibles = $limite_aforo - $ocupados;
-        echo json_encode(["success" => false, "message" => "Lo sentimos, a las $hora solo quedan $disponibles lugares."]);
-        exit;
+        alertaYVolver("Lo sentimos, a las $hora solo quedan $disponibles lugares disponibles.");
     }
+} else {
+    alertaYVolver("Error verificando disponibilidad.");
 }
 
-// --- GUARDAR EN BASE DE DATOS ---
+// 5. Insertar Reserva
 $sql_insertar = "INSERT INTO reservas (nombres, apellidos, dni, edad, email, telefono, codigo_operacion, personas, fecha, hora) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql_insertar);
 
@@ -69,13 +82,14 @@ if ($stmt) {
     );
 
     if ($stmt->execute()) {
-        echo json_encode(["success" => true, "message" => "¡Reserva recibida! Validaremos tu pago en breve."]);
+        // ÉXITO: Mensaje y redirigir al inicio
+        alertaYRedirigir("¡Reserva recibida con éxito! Validaremos tu pago en breve.", "../index.html");
     } else {
-        echo json_encode(["success" => false, "message" => "Error al guardar en BD: " . $stmt->error]);
+        alertaYVolver("Error al guardar en BD: " . $stmt->error);
     }
     $stmt->close();
 } else {
-    echo json_encode(["success" => false, "message" => "Error preparando la consulta SQL: " . $conn->error]);
+    alertaYVolver("Error preparando la consulta SQL.");
 }
 
 $conn->close();
