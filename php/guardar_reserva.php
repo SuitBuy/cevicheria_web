@@ -1,7 +1,8 @@
 <?php
-require 'conexion.php'; 
+require 'conexion.php';
 
-function alertaYRedirigir($mensaje, $url) {
+function alertaYRedirigir($mensaje, $url)
+{
     echo "<script>
             alert('" . addslashes($mensaje) . "');
             window.location.href = '$url';
@@ -9,7 +10,8 @@ function alertaYRedirigir($mensaje, $url) {
     exit;
 }
 
-function alertaYVolver($mensaje) {
+function alertaYVolver($mensaje)
+{
     echo "<script>
             alert('" . addslashes($mensaje) . "');
             window.history.back();
@@ -31,16 +33,13 @@ $edad = $_POST['edad'] ?? '';
 $email = $_POST['email'] ?? '';
 $telefono = $_POST['telefono'] ?? '';
 
-// Código de operación ahora es opcional o "Pendiente"
-$codigo = "Pendiente Pago"; 
-
-// Validación (quitamos código de operación)
+// Validación (Sin código)
 if (empty($fecha) || empty($hora) || $personas <= 0 || empty($nombre) || empty($telefono)) {
     alertaYVolver("Faltan datos obligatorios. Verifica fecha, hora y teléfono.");
 }
 
-// Aforo
-$limite_aforo = 30; 
+// Lógica de Aforo
+$limite_aforo = 30;
 $sql_aforo = "SELECT SUM(personas) as total FROM reservas WHERE fecha = ? AND hora = ? AND estado != 'Rechazado' AND estado != 'Expirado'";
 $stmt_check = $conn->prepare($sql_aforo);
 
@@ -58,27 +57,27 @@ if ($stmt_check) {
     }
 }
 
-// Insertar
-$sql_insertar = "INSERT INTO reservas (nombres, apellidos, dni, edad, email, telefono, codigo_operacion, personas, fecha, hora, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')";
+// GUARDAR EN BD (Sin columna codigo_operacion)
+$sql_insertar = "INSERT INTO reservas (nombres, apellidos, dni, edad, email, telefono, personas, fecha, hora, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')";
 $stmt = $conn->prepare($sql_insertar);
 
 if ($stmt) {
-    $stmt->bind_param("sssisssiss", 
-        $nombre, 
-        $apellido, 
-        $dni, 
-        $edad, 
-        $email, 
+    // 9 parámetros: sssisssis
+    $stmt->bind_param(
+        "sssisssis",
+        $nombre,
+        $apellido,
+        $dni,
+        $edad,
+        $email,
         $telefono,
-        $codigo,
-        $personas, 
-        $fecha, 
+        $personas,
+        $fecha,
         $hora
     );
 
     if ($stmt->execute()) {
-        // Mensaje actualizado
-        alertaYRedirigir("¡Solicitud recibida! Te contactaremos al WhatsApp en unos minutos para confirmar el pago de S/ 20.00.", "../index.html");
+        alertaYRedirigir("¡Solicitud enviada! En breve te escribiremos al WhatsApp para coordinar el pago de S/ 20.00 y confirmar tu mesa.", "../index.html");
     } else {
         alertaYVolver("Error al guardar en BD: " . $stmt->error);
     }
@@ -88,4 +87,3 @@ if ($stmt) {
 }
 
 $conn->close();
-?>

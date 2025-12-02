@@ -7,7 +7,9 @@
     <title>Rinconcito Marino - Reservas</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/png" href="assets/logo.png">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 
@@ -87,9 +89,8 @@
                 <div class="final-layout">
                     <div class="form-column">
                         <h2 class="step-title" style="text-align: left;">Completa tus datos</h2>
-                        
                         <form id="clientForm" action="php/guardar_reserva.php" method="POST">
-                            
+
                             <input type="hidden" id="h_personas" name="personas">
                             <input type="hidden" id="h_fecha" name="fecha">
                             <input type="hidden" id="h_hora" name="hora">
@@ -107,7 +108,8 @@
                             <div class="form-row">
                                 <div class="input-group">
                                     <label>DNI</label>
-                                    <input type="tel" id="dni" name="dni" placeholder="8 dígitos" maxlength="8" pattern="\d{8}" required>
+                                    <input type="tel" id="dni" name="dni" placeholder="8 dígitos" maxlength="8"
+                                        pattern="\d{8}" required>
                                 </div>
                                 <div class="input-group">
                                     <label>Edad</label>
@@ -120,9 +122,11 @@
                             </div>
                             <div class="input-group">
                                 <label>Número de Teléfono (WhatsApp)</label>
-                                <input type="tel" id="telefono" name="telefono" placeholder="999 999 999" maxlength="9" required>
-                                <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">
-                                    <i class="fab fa-whatsapp"></i> Te contactaremos a este número para coordinar el pago.
+                                <input type="tel" id="telefono" name="telefono" placeholder="999 999 999" maxlength="9"
+                                    required>
+                                <p style="font-size:0.8rem; color:#666; margin-top:5px;">
+                                    <i class="fab fa-whatsapp"></i> Te escribiremos a este número para coordinar el
+                                    pago.
                                 </p>
                             </div>
                         </form>
@@ -134,18 +138,23 @@
                             <p class="location-text">Miraflores</p>
                             <div class="summary-detail"><i class="fas fa-map-marker-alt"></i> Calle Tarata 248</div>
                             <hr class="divider">
-                            <div class="summary-row"><i class="fas fa-user-friends"></i> <span id="sumPersonas">--</span></div>
-                            <div class="summary-row"><i class="far fa-calendar-alt"></i> <span id="sumFecha">--/--/----</span></div>
+                            <div class="summary-row"><i class="fas fa-user-friends"></i> <span
+                                    id="sumPersonas">--</span></div>
+                            <div class="summary-row"><i class="far fa-calendar-alt"></i> <span
+                                    id="sumFecha">--/--/----</span></div>
                             <div class="summary-row"><i class="far fa-clock"></i> <span id="sumHora">--:--</span></div>
-                            
+
                             <hr class="divider">
-                            <div class="summary-row" style="font-size: 1.2rem; color: #d4a373; font-weight: bold; justify-content: space-between;">
+                            <div class="summary-row"
+                                style="font-size: 1.2rem; color: #d4a373; font-weight: bold; justify-content: space-between;">
                                 <span>Costo Reserva:</span>
                                 <span>S/ 20.00</span>
                             </div>
-                            <p style="font-size: 0.75rem; color: #aaa; text-align: center; margin-top: 5px;">*El pago se coordinará por WhatsApp</p>
+                            <p style="font-size: 0.75rem; color: #aaa; text-align: center; margin-top: 5px;">*El pago se
+                                coordinará por WhatsApp</p>
 
-                            <button type="button" class="btn-confirm" onclick="finalizeReservation()">SOLICITAR RESERVA</button>
+                            <button type="button" class="btn-confirm" onclick="finalizeReservation()">SOLICITAR
+                                RESERVA</button>
                         </div>
                     </div>
                 </div>
@@ -250,7 +259,7 @@
 
             if (!nombre || !apellido || !dni || !edad || !email || !telefono)
                 return alert("Por favor, completa todos tus datos personales.");
-            
+
             if (dni.length !== 8) return alert("DNI inválido (debe tener 8 dígitos)");
             if (telefono.length < 9) return alert("Teléfono inválido");
             if (edad < 18) return alert("Debes ser mayor de edad para reservar");
@@ -267,4 +276,5 @@
         }
     </script>
 </body>
+
 </html>
