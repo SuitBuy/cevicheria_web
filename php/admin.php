@@ -6,40 +6,71 @@ if (!isset($_SESSION['admin'])) {
 }
 require 'conexion.php';
 
+// --- VARIABLES DE NAVEGACIÓN ---
+$view = isset($_GET['view']) ? $_GET['view'] : 'reservas'; // Por defecto reservas
+
+// --- LÓGICA DE EXPIRACIÓN AUTOMÁTICA (Solo para reservas) ---
 $conn->query("UPDATE reservas SET estado = 'Expirado' WHERE estado = 'Pendiente' AND fecha_registro < (NOW() - INTERVAL 30 MINUTE)");
 
+// --- ACCIONES DE BOTONES ---
 if (isset($_GET['accion']) && isset($_GET['id'])) {
     $id = intval($_GET['id']);
     $accion = $_GET['accion'];
 
+    // Acciones Reservas
     if ($accion == 'confirmar') $conn->query("UPDATE reservas SET estado = 'Confirmado' WHERE id = $id");
     if ($accion == 'rechazar') $conn->query("UPDATE reservas SET estado = 'Rechazado' WHERE id = $id");
     if ($accion == 'eliminar') $conn->query("DELETE FROM reservas WHERE id = $id");
 
-    header("Location: admin.php");
-    exit;
+    // Acciones Opiniones
+    if ($accion == 'eliminar_opinion') {
+        $conn->query("DELETE FROM opiniones WHERE id = $id");
+        header("Location: admin.php?view=opiniones"); // Mantenerse en la vista opiniones
+        exit;
+    }
+
+    // Redirección general (para reservas)
+    if ($accion != 'eliminar_opinion') {
+        header("Location: admin.php?view=reservas");
+        exit;
+    }
 }
 
-$where_clause = "1=1";
+// --- BÚSQUEDA ---
 $search_term = "";
+$where_clause = "1=1";
+
 if (isset($_GET['q']) && !empty($_GET['q'])) {
     $search_term = $conn->real_escape_string($_GET['q']);
-    $where_clause = "(nombres LIKE '%$search_term%' OR apellidos LIKE '%$search_term%' OR dni LIKE '%$search_term%' OR telefono LIKE '%$search_term%')";
+    if ($view == 'reservas') {
+        $where_clause = "(nombres LIKE '%$search_term%' OR apellidos LIKE '%$search_term%' OR dni LIKE '%$search_term%' OR telefono LIKE '%$search_term%')";
+    } else {
+        $where_clause = "(nombres LIKE '%$search_term%' OR correo LIKE '%$search_term%' OR comentario LIKE '%$search_term%')";
+    }
 }
 
-$sql = "SELECT *, (fecha_registro < (NOW() - INTERVAL 30 MINUTE)) as vencido 
-        FROM reservas 
-        WHERE $where_clause 
-        ORDER BY FIELD(estado, 'Pendiente', 'Confirmado', 'Rechazado', 'Expirado'), fecha DESC, hora ASC";
-$reservas = $conn->query($sql);
+// --- CONSULTAS SEGÚN LA VISTA ---
+if ($view == 'reservas') {
+    $sql = "SELECT *, (fecha_registro < (NOW() - INTERVAL 30 MINUTE)) as vencido 
+            FROM reservas 
+            WHERE $where_clause 
+            ORDER BY FIELD(estado, 'Pendiente', 'Confirmado', 'Rechazado', 'Expirado'), fecha DESC, hora ASC";
+    $datos = $conn->query($sql);
+} else {
+    // Vista Opiniones
+    $sql = "SELECT * FROM opiniones WHERE $where_clause ORDER BY id DESC";
+    $datos = $conn->query($sql);
+}
 
+// --- DATOS SESIÓN ---
 $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'admin';
 $nombre_empleado = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Admin';
 
+// --- ESTADÍSTICAS RÁPIDAS ---
 $hoy = date('Y-m-d');
 $stats_pendientes = $conn->query("SELECT COUNT(*) as c FROM reservas WHERE estado='Pendiente'")->fetch_assoc()['c'];
 $stats_hoy = $conn->query("SELECT COUNT(*) as c FROM reservas WHERE fecha='$hoy' AND estado='Confirmado'")->fetch_assoc()['c'];
-$stats_total_hoy = $conn->query("SELECT SUM(personas) as p FROM reservas WHERE fecha='$hoy' AND estado='Confirmado'")->fetch_assoc()['p'];
+$stats_opiniones = $conn->query("SELECT COUNT(*) as c FROM opiniones")->fetch_assoc()['c'];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -358,6 +389,18 @@ $stats_total_hoy = $conn->query("SELECT SUM(personas) as p FROM reservas WHERE f
             filter: brightness(0.95);
         }
 
+        /* Estilo para el comentario largo */
+        .comment-box {
+            max-width: 400px;
+            font-size: 0.9rem;
+            color: #4b5563;
+            line-height: 1.4;
+            background: #f9fafb;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+
         @media (max-width: 768px) {
             header {
                 padding: 15px 20px;
@@ -391,10 +434,12 @@ $stats_total_hoy = $conn->query("SELECT SUM(personas) as p FROM reservas WHERE f
 
         <div class="header-right">
             <nav>
-                <a href="admin.php" class="nav-link active">
+                <a href="admin.php?view=reservas" class="nav-link <?php echo $view == 'reservas' ? 'active' : ''; ?>">
                     <i class="fas fa-clipboard-list"></i> Reservas
                 </a>
-
+                <a href="admin.php?view=opiniones" class="nav-link <?php echo $view == 'opiniones' ? 'active' : ''; ?>">
+                    <i class="fas fa-comments"></i> Opiniones
+                </a>
                 <?php if ($rol_usuario == 'admin'): ?>
                     <a href="usuarios.php" class="nav-link">
                         <i class="fas fa-users-cog"></i> Usuarios
@@ -417,7 +462,7 @@ $stats_total_hoy = $conn->query("SELECT SUM(personas) as p FROM reservas WHERE f
             <div class="stat-card" style="border-color: var(--warning);">
                 <div>
                     <h3><?php echo $stats_pendientes; ?></h3>
-                    <p>Pendientes de Pago</p>
+                    <p>Pendientes Pago</p>
                 </div>
                 <i class="fas fa-clock stat-icon" style="color: var(--warning);"></i>
             </div>
@@ -425,116 +470,148 @@ $stats_total_hoy = $conn->query("SELECT SUM(personas) as p FROM reservas WHERE f
             <div class="stat-card" style="border-color: var(--success);">
                 <div>
                     <h3><?php echo $stats_hoy; ?></h3>
-                    <p>Mesas Confirmadas Hoy</p>
+                    <p>Mesas Hoy</p>
                 </div>
                 <i class="fas fa-check-circle stat-icon" style="color: var(--success);"></i>
             </div>
 
             <div class="stat-card" style="border-color: var(--primary);">
                 <div>
-                    <h3><?php echo $stats_total_hoy ? $stats_total_hoy : 0; ?></h3>
-                    <p>Total Personas Hoy</p>
+                    <h3><?php echo $stats_opiniones; ?></h3>
+                    <p>Opiniones Total</p>
                 </div>
-                <i class="fas fa-users stat-icon"></i>
+                <i class="fas fa-comment-dots stat-icon"></i>
             </div>
         </div>
 
         <div class="search-bar-container">
-            <h3 style="color: var(--primary); min-width: 150px;">Gestión de Reservas</h3>
+            <h3 style="color: var(--primary); min-width: 200px;">
+                <?php echo $view == 'reservas' ? 'Gestión de Reservas' : 'Buzón de Opiniones'; ?>
+            </h3>
+
             <form class="search-form" method="GET">
+                <input type="hidden" name="view" value="<?php echo $view; ?>">
                 <input type="text" name="q" class="search-input"
-                    placeholder="Buscar por Nombre, DNI, Teléfono..."
+                    placeholder="<?php echo $view == 'reservas' ? 'Buscar cliente, DNI...' : 'Buscar en opiniones...'; ?>"
                     value="<?php echo htmlspecialchars($search_term); ?>">
                 <button type="submit" class="search-btn"><i class="fas fa-search"></i> Buscar</button>
             </form>
+
             <?php if (!empty($search_term)): ?>
-                <a href="admin.php" class="btn-reset"><i class="fas fa-times"></i> Limpiar</a>
+                <a href="admin.php?view=<?php echo $view; ?>" class="btn-reset"><i class="fas fa-times"></i> Limpiar</a>
             <?php endif; ?>
         </div>
 
         <div class="table-container">
             <table>
                 <thead>
-                    <tr>
-                        <th>Fecha y Hora</th>
-                        <th>Cliente</th>
-                        <th>Contacto</th>
-                        <th>Pax</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
+                    <?php if ($view == 'reservas'): ?>
+                        <tr>
+                            <th>Fecha y Hora</th>
+                            <th>Cliente</th>
+                            <th>Contacto</th>
+                            <th>Pax</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    <?php else: ?>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Correo</th>
+                            <th>Opinión</th>
+                            <th>Acciones</th>
+                        </tr>
+                    <?php endif; ?>
                 </thead>
                 <tbody>
-                    <?php if ($reservas->num_rows > 0): ?>
-                        <?php while ($row = $reservas->fetch_assoc()): ?>
-                            <tr style="<?php echo ($row['estado'] == 'Expirado') ? 'opacity:0.5; background:#f9f9f9;' : ''; ?>">
-                                <td>
-                                    <div style="font-weight: 600; color: var(--primary);">
-                                        <?php echo date('d/m/Y', strtotime($row['fecha'])); ?>
-                                    </div>
-                                    <div style="font-size: 0.9rem; color: var(--gray);">
-                                        <i class="far fa-clock"></i> <?php echo $row['hora']; ?>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="font-weight: 600;"><?php echo $row['nombres'] . " " . $row['apellidos']; ?></div>
-                                    <div style="font-size: 0.85rem; color: var(--gray);">DNI: <?php echo $row['dni']; ?></div>
-                                </td>
-                                <td>
-                                    <div><i class="fas fa-phone-alt" style="font-size:0.7rem;"></i> <?php echo $row['telefono']; ?></div>
-                                </td>
-                                <td style="text-align:center; font-weight:bold; font-size:1.1rem;">
-                                    <?php echo $row['personas']; ?>
-                                </td>
-                                <td>
-                                    <span class="badge badge-<?php echo strtolower($row['estado']); ?>">
-                                        <?php echo $row['estado']; ?>
-                                    </span>
-                                    <?php if ($row['estado'] == 'Pendiente'): ?>
-                                        <div style="font-size:0.7rem; margin-top:5px; color:#ef4444;">
-                                            Reg: <?php echo date('H:i', strtotime($row['fecha_registro'])); ?>
+                    <?php if ($datos->num_rows > 0): ?>
+                        <?php while ($row = $datos->fetch_assoc()): ?>
+
+                            <?php if ($view == 'reservas'): ?>
+                                <tr style="<?php echo ($row['estado'] == 'Expirado') ? 'opacity:0.5; background:#f9f9f9;' : ''; ?>">
+                                    <td>
+                                        <div style="font-weight: 600; color: var(--primary);">
+                                            <?php echo date('d/m/Y', strtotime($row['fecha'])); ?>
                                         </div>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <div class="actions">
-                                        <?php
-                                        // MENSAJE WHATSAPP
-                                        $mensaje_wsp = "Hola, soy $nombre_empleado. Me contacto con usted para confirmar el método de pago sobre la reserva de nuestro restaurante Rinconcito Marino (S/ 20.00).";
-                                        $link_wsp = "https://wa.me/51" . $row['telefono'] . "?text=" . urlencode($mensaje_wsp);
-                                        ?>
+                                        <div style="font-size: 0.9rem; color: var(--gray);">
+                                            <i class="far fa-clock"></i> <?php echo $row['hora']; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="font-weight: 600;"><?php echo $row['nombres'] . " " . $row['apellidos']; ?></div>
+                                        <div style="font-size: 0.85rem; color: var(--gray);">DNI: <?php echo $row['dni']; ?></div>
+                                    </td>
+                                    <td>
+                                        <div><i class="fas fa-phone-alt" style="font-size:0.7rem;"></i> <?php echo $row['telefono']; ?></div>
+                                    </td>
+                                    <td style="text-align:center; font-weight:bold; font-size:1.1rem;">
+                                        <?php echo $row['personas']; ?>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-<?php echo strtolower($row['estado']); ?>">
+                                            <?php echo $row['estado']; ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="actions">
+                                            <?php
+                                            $mensaje_wsp = "Hola, soy $nombre_empleado. Me contacto con usted para confirmar el método de pago sobre la reserva de nuestro restaurante Rinconcito Marino (S/ 20.00).";
+                                            $link_wsp = "https://wa.me/51" . $row['telefono'] . "?text=" . urlencode($mensaje_wsp);
+                                            ?>
 
-                                        <a href="<?php echo $link_wsp; ?>" target="_blank" class="btn-icon btn-wsp" title="Contactar por WhatsApp">
-                                            <i class="fab fa-whatsapp"></i>
+                                            <a href="<?php echo $link_wsp; ?>" target="_blank" class="btn-icon btn-wsp" title="Contactar por WhatsApp">
+                                                <i class="fab fa-whatsapp"></i>
+                                            </a>
+
+                                            <?php if ($row['estado'] == 'Pendiente'): ?>
+                                                <a href="admin.php?accion=confirmar&id=<?php echo $row['id']; ?>&view=reservas"
+                                                    class="btn-icon btn-ok" title="Confirmar Pago"
+                                                    onclick="return confirm('¿El cliente ya pagó los 20 soles?')">
+                                                    <i class="fas fa-check"></i>
+                                                </a>
+                                                <a href="admin.php?accion=rechazar&id=<?php echo $row['id']; ?>&view=reservas"
+                                                    class="btn-icon btn-no" title="Rechazar Reserva"
+                                                    onclick="return confirm('¿Rechazar esta reserva?')">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
+                                            <?php else: ?>
+                                                <a href="admin.php?accion=eliminar&id=<?php echo $row['id']; ?>&view=reservas"
+                                                    class="btn-icon btn-del" title="Eliminar Registro"
+                                                    onclick="return confirm('¿Borrar permanentemente?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            <?php else: ?>
+                                <tr>
+                                    <td style="color:var(--gray);">#<?php echo $row['id']; ?></td>
+                                    <td style="font-weight:600;"><?php echo $row['nombres']; ?></td>
+                                    <td style="color:var(--primary);"><?php echo $row['correo']; ?></td>
+                                    <td>
+                                        <div class="comment-box">
+                                            <?php echo nl2br(htmlspecialchars($row['comentario'])); ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="admin.php?accion=eliminar_opinion&id=<?php echo $row['id']; ?>&view=opiniones"
+                                            class="btn-icon btn-del" title="Eliminar Opinión"
+                                            onclick="return confirm('¿Borrar esta opinión?')">
+                                            <i class="fas fa-trash"></i>
                                         </a>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
 
-                                        <?php if ($row['estado'] == 'Pendiente'): ?>
-                                            <a href="admin.php?accion=confirmar&id=<?php echo $row['id']; ?>"
-                                                class="btn-icon btn-ok" title="Confirmar Pago"
-                                                onclick="return confirm('¿El cliente ya pagó los 20 soles?')">
-                                                <i class="fas fa-check"></i>
-                                            </a>
-                                            <a href="admin.php?accion=rechazar&id=<?php echo $row['id']; ?>"
-                                                class="btn-icon btn-no" title="Rechazar Reserva"
-                                                onclick="return confirm('¿Rechazar esta reserva?')">
-                                                <i class="fas fa-times"></i>
-                                            </a>
-                                        <?php else: ?>
-                                            <a href="admin.php?accion=eliminar&id=<?php echo $row['id']; ?>"
-                                                class="btn-icon btn-del" title="Eliminar Registro"
-                                                onclick="return confirm('¿Borrar permanentemente?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                            </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
                             <td colspan="6" style="text-align:center; padding: 40px; color: var(--gray);">
-                                <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.3;"></i>
-                                <p>No se encontraron reservas.</p>
+                                <i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.3;"></i>
+                                <p>No hay <?php echo $view; ?> registradas.</p>
                             </td>
                         </tr>
                     <?php endif; ?>
