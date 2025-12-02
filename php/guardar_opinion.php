@@ -1,5 +1,7 @@
 <?php
-header('Content-Type: application/json');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require 'conexion.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -11,9 +13,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bind_param("sss", $nombres, $correo, $comentario);
 
     if ($stmt->execute()) {
-        echo "<script>alert('¡Gracias por tu opinión!'); window.location.href='../index.html';</script>";
+        echo "<script>
+                alert('¡Gracias por tu opinión!'); 
+                window.location.href='../index.html';
+              </script>";
     } else {
-        echo "Error: " . $conn->error;
+        echo "<script>
+                alert('Hubo un error al guardar tu opinión.'); 
+                window.history.back();
+              </script>";
     }
     $stmt->close();
 }

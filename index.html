@@ -145,8 +145,6 @@
         </div>
         <div class="floating-buttons">
             <a href="#" class="btn-float btn-scroll-top" id="scrollTopBtn"><i class="fas fa-chevron-up"></i></a>
-            <a href="https://wa.me/51910872665" target="_blank" class="btn-float btn-whatsapp"><i
-                    class="fab fa-whatsapp"></i></a>
         </div>
     </footer>
 
@@ -154,7 +152,7 @@
         window.addEventListener('scroll', () => {
             const header = document.querySelector('.header-animado');
             if (header) header.classList.toggle('scrolled', window.scrollY > 50);
-            
+
             const scrollTopBtn = document.getElementById('scrollTopBtn');
             if (scrollTopBtn) {
                 if (window.scrollY > 300) scrollTopBtn.classList.add('show');
@@ -172,14 +170,14 @@
 
         if (menuToggle && navMenu) {
             menuToggle.addEventListener('click', () => {
-                navMenu.classList.toggle('active'); 
+                navMenu.classList.toggle('active');
             });
         }
 
         const observerOptions = {
             root: null,
             rootMargin: '0px',
-            threshold: 0.1 
+            threshold: 0.1
         };
 
         const observer = new IntersectionObserver((entries, observer) => {
@@ -194,4 +192,5 @@
         document.querySelectorAll('.zigzag-item').forEach(item => observer.observe(item));
     </script>
 </body>
+
 </html>
