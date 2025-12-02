@@ -1,7 +1,7 @@
 <?php
 // 1. Configuraciones iniciales obligatorias
 header('Content-Type: application/json; charset=utf-8');
-require 'conexion.php';
+require 'conexion.php'; 
 
 // 2. Recibir el JSON enviado por JavaScript
 $json_recibido = file_get_contents("php://input");
@@ -26,7 +26,7 @@ if (empty($fecha) || empty($hora) || $personas <= 0) {
 }
 
 // --- LOGICA DE AFORO (Máximo 30 personas por turno) ---
-$limite_aforo = 30;
+$limite_aforo = 30; 
 
 // Consulta de verificación
 $sql_aforo = "SELECT SUM(personas) as total FROM reservas WHERE fecha = ? AND hora = ? AND estado != 'Rechazado' AND estado != 'Expirado'";
@@ -63,17 +63,16 @@ $sql_insertar = "INSERT INTO reservas (nombres, apellidos, dni, edad, email, tel
 $stmt = $conn->prepare($sql_insertar);
 
 if ($stmt) {
-    $stmt->bind_param(
-        "sssisssiss",
-        $nombre,
-        $apellido,
-        $dni,
-        $edad,
-        $email,
+    $stmt->bind_param("sssisssiss", 
+        $nombre, 
+        $apellido, 
+        $dni, 
+        $edad, 
+        $email, 
         $telefono,
         $codigo,
-        $personas,
-        $fecha,
+        $personas, 
+        $fecha, 
         $hora
     );
 
@@ -88,3 +87,4 @@ if ($stmt) {
 }
 
 $conn->close();
+?>
