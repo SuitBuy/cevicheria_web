@@ -27,6 +27,7 @@ $where_clause = "1=1";
 $search_term = "";
 if (isset($_GET['q']) && !empty($_GET['q'])) {
     $search_term = $conn->real_escape_string($_GET['q']);
+    // Eliminado búsqueda por código
     $where_clause = "(nombres LIKE '%$search_term%' OR apellidos LIKE '%$search_term%' OR dni LIKE '%$search_term%' OR telefono LIKE '%$search_term%')";
 }
 

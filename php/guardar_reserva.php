@@ -1,8 +1,7 @@
 <?php
-require 'conexion.php';
+require 'conexion.php'; 
 
-function alertaYRedirigir($mensaje, $url)
-{
+function alertaYRedirigir($mensaje, $url) {
     echo "<script>
             alert('" . addslashes($mensaje) . "');
             window.location.href = '$url';
@@ -10,8 +9,7 @@ function alertaYRedirigir($mensaje, $url)
     exit;
 }
 
-function alertaYVolver($mensaje)
-{
+function alertaYVolver($mensaje) {
     echo "<script>
             alert('" . addslashes($mensaje) . "');
             window.history.back();
@@ -33,13 +31,13 @@ $edad = $_POST['edad'] ?? '';
 $email = $_POST['email'] ?? '';
 $telefono = $_POST['telefono'] ?? '';
 
-// Validación (Sin código)
+// Validación (Sin código de operación)
 if (empty($fecha) || empty($hora) || $personas <= 0 || empty($nombre) || empty($telefono)) {
     alertaYVolver("Faltan datos obligatorios. Verifica fecha, hora y teléfono.");
 }
 
 // Lógica de Aforo
-$limite_aforo = 30;
+$limite_aforo = 30; 
 $sql_aforo = "SELECT SUM(personas) as total FROM reservas WHERE fecha = ? AND hora = ? AND estado != 'Rechazado' AND estado != 'Expirado'";
 $stmt_check = $conn->prepare($sql_aforo);
 
@@ -57,21 +55,21 @@ if ($stmt_check) {
     }
 }
 
+// GUARDAR EN BD (Sin columna codigo_operacion)
 $sql_insertar = "INSERT INTO reservas (nombres, apellidos, dni, edad, email, telefono, personas, fecha, hora, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')";
 $stmt = $conn->prepare($sql_insertar);
 
 if ($stmt) {
-    // 9 parámetros: sssisssis
-    $stmt->bind_param(
-        "sssisssis",
-        $nombre,
-        $apellido,
-        $dni,
-        $edad,
-        $email,
+    // 9 parámetros
+    $stmt->bind_param("sssisssis", 
+        $nombre, 
+        $apellido, 
+        $dni, 
+        $edad, 
+        $email, 
         $telefono,
-        $personas,
-        $fecha,
+        $personas, 
+        $fecha, 
         $hora
     );
 
@@ -86,3 +84,4 @@ if ($stmt) {
 }
 
 $conn->close();
+?>
