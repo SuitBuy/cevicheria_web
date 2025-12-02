@@ -821,3 +821,5 @@ footer {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+.nav-link { color: white; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-size: 0.9rem; transition: 0.3s; }
+.nav-link:hover { background: rgba(255,255,255,0.2); }
