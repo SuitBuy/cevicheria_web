@@ -125,7 +125,7 @@
                                 <input type="tel" id="telefono" name="telefono" placeholder="999 999 999" maxlength="9"
                                     required>
                                 <p style="font-size:0.8rem; color:#666; margin-top:5px;">
-                                    <i class="fab fa-whatsapp"></i> Te escribiremos a este número para coordinar el
+                                    <i class="fab fa-whatsapp"></i> Te escribiremos a este número para confirmar el
                                     pago.
                                 </p>
                             </div>
@@ -172,7 +172,7 @@
                 <ul>
                     <li><a href="index.html">QUIÉNES SOMOS</a></li>
                     <li><a href="carta.html">NUESTRA CARTA</a></li>
-                    <li><a href="#">UBÍCANOS</a></li>
+                    <li><a href="https://maps.google.com">UBÍCANOS</a></li>
                 </ul>
             </div>
             <div class="footer-col">
@@ -264,6 +264,7 @@
             if (telefono.length < 9) return alert("Teléfono inválido");
             if (edad < 18) return alert("Debes ser mayor de edad para reservar");
 
+            // Pasamos datos a inputs ocultos
             document.getElementById('h_personas').value = reserva.personas;
             document.getElementById('h_fecha').value = reserva.fecha;
             document.getElementById('h_hora').value = reserva.hora;
@@ -272,6 +273,7 @@
             btnConfirm.innerText = "PROCESANDO...";
             btnConfirm.disabled = true;
 
+            // Enviamos el formulario
             document.getElementById('clientForm').submit();
         }
     </script>

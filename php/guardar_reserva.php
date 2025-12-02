@@ -57,7 +57,6 @@ if ($stmt_check) {
     }
 }
 
-// GUARDAR EN BD (Sin columna codigo_operacion)
 $sql_insertar = "INSERT INTO reservas (nombres, apellidos, dni, edad, email, telefono, personas, fecha, hora, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')";
 $stmt = $conn->prepare($sql_insertar);
 
