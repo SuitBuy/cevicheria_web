@@ -8,19 +8,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $usuario = $conn->real_escape_string($_POST['usuario']);
     $password = $_POST['password'];
 
-    // Buscamos el usuario en la BD
     $sql = "SELECT id, usuario, password, rol FROM usuarios_admin WHERE usuario = '$usuario'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
 
-        // Verificamos el hash de la contraseña
         if (password_verify($password, $row['password'])) {
-            $_SESSION['admin'] = true; // Mantengo tu variable original
+            $_SESSION['admin'] = true; 
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['user_name'] = $row['usuario'];
-            $_SESSION['rol'] = $row['rol']; // Guardamos el rol (admin/empleado)
+            $_SESSION['rol'] = $row['rol']; 
 
             header("Location: admin.php");
             exit;

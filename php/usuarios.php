@@ -2,7 +2,6 @@
 session_start();
 require 'conexion.php';
 
-// SEGURIDAD: Solo admin puede entrar aquí
 if (!isset($_SESSION['admin']) || $_SESSION['rol'] != 'admin') {
     header("Location: admin.php");
     exit;
@@ -11,7 +10,6 @@ if (!isset($_SESSION['admin']) || $_SESSION['rol'] != 'admin') {
 $mensaje = "";
 $usuario_editar = null;
 
-// --- LOGICA DE BASE DE DATOS (Igual que antes) ---
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $usuario = $conn->real_escape_string($_POST['usuario']);
     $rol = $_POST['rol'];
@@ -70,7 +68,6 @@ $nombre_usuario = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Admi
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* --- MISMOS ESTILOS QUE ADMIN.PHP --- */
         :root {
             --primary: #0E3C5E;
             --bg: #f3f4f6;
@@ -95,7 +92,6 @@ $nombre_usuario = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Admi
             min-height: 100vh;
         }
 
-        /* HEADER */
         header {
             background: var(--primary);
             color: var(--white);
@@ -181,7 +177,6 @@ $nombre_usuario = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Admi
             transform: translateY(-2px);
         }
 
-        /* LAYOUT ESPECÍFICO DE USUARIOS (Grid 2 columnas) */
         .container {
             max-width: 1200px;
             margin: 40px auto;
@@ -206,7 +201,6 @@ $nombre_usuario = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Admi
             font-size: 1.2rem;
         }
 
-        /* FORMULARIOS ESTILIZADOS */
         label {
             display: block;
             margin-bottom: 8px;
@@ -263,7 +257,6 @@ $nombre_usuario = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Admi
             color: var(--danger);
         }
 
-        /* TABLA ESTILIZADA */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -294,7 +287,6 @@ $nombre_usuario = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Admi
             background: #f9fafb;
         }
 
-        /* BADGES */
         .badge {
             padding: 5px 12px;
             border-radius: 20px;
@@ -316,7 +308,6 @@ $nombre_usuario = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Admi
             border: 1px solid #e5e7eb;
         }
 
-        /* BOTONES DE ACCIÓN */
         .actions {
             display: flex;
             gap: 10px;

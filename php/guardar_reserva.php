@@ -1,19 +1,15 @@
 <?php
-// --- MODO DEPURACIÓN: ACTIVADO ---
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require 'conexion.php';
 
-// Función para guardar errores en un archivo de texto
 function registrarLog($mensaje) {
     $fecha = date("Y-m-d H:i:s");
-    // Guardamos en el archivo log
     file_put_contents("debug_log.txt", "[$fecha] $mensaje" . PHP_EOL, FILE_APPEND);
 }
 
-// Funciones de alerta
 function alertaYRedirigir($mensaje, $url) {
     echo "<script>alert('" . addslashes($mensaje) . "'); window.location.href = '$url';</script>";
     exit;
@@ -26,13 +22,11 @@ function alertaYVolver($mensaje) {
 
 registrarLog("--- NUEVA INTENTO DE RESERVA ---");
 
-// 1. Validar que lleguen datos
 if (empty($_POST)) {
     registrarLog("Error: $_POST está vacío.");
     die("Error: No se recibieron datos.");
 }
 
-// 2. Recibir datos
 $fecha = $_POST['fecha'] ?? '';
 $hora = $_POST['hora'] ?? '';
 $personas = isset($_POST['personas']) ? intval($_POST['personas']) : 0;
@@ -43,21 +37,18 @@ $edad = $_POST['edad'] ?? '';
 $email = $_POST['email'] ?? '';
 $telefono = $_POST['telefono'] ?? '';
 
-// LOGUEAR TODOS LOS DATOS (Para que veas que sí llegan)
 registrarLog("Datos recibidos:");
 registrarLog(" - Cliente: $nombre $apellido");
 registrarLog(" - DNI: $dni | Edad: $edad");
 registrarLog(" - Contacto: $telefono | $email");
 registrarLog(" - Reserva: $fecha a las $hora para $personas personas");
 
-// 3. Validar campos obligatorios
 if (empty($fecha) || empty($hora) || $personas <= 0 || empty($nombre) || empty($telefono)) {
     registrarLog("Faltan datos obligatorios.");
     alertaYVolver("Faltan datos obligatorios.");
 }
 
-// 4. Insertar en BD
-// NOTA: El estado por defecto es 'Pendiente'
+
 $sql_insertar = "INSERT INTO reservas (nombres, apellidos, dni, edad, email, telefono, personas, fecha, hora, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')";
 
 $stmt = $conn->prepare($sql_insertar);
@@ -67,11 +58,7 @@ if (!$stmt) {
     die("Error en la consulta SQL: " . $conn->error);
 }
 
-// --- CORRECCIÓN IMPORTANTE DE TIPOS ---
-// s = string (texto), i = integer (número)
-// Antes fallaba en la fecha. Ahora usamos:
-// s (nombre), s (apellido), s (dni), i (edad), s (email), s (telefono), i (personas), s (fecha), s (hora)
-// Total: sssisssss
+
 $stmt->bind_param("sssisssss", 
     $nombre, 
     $apellido, 

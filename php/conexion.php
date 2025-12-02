@@ -1,12 +1,8 @@
 <?php
-// 1. SILENCIAR ERRORES HTML DE PHP (Opcional, pero recomendado en producción)
 error_reporting(0); 
 ini_set('display_errors', 0);
 
-// ELIMINAMOS EL HEADER JSON para permitir respuestas HTML/JS
-// header('Content-Type: application/json; charset=utf-8'); <--- ELIMINADO
 
-// Credenciales de Railway
 $host = "shuttle.proxy.rlwy.net"; 
 $usuario = "root";   
 $password = "mypyjIjXfTNKjoaxvrxpNBtDebvMWjDb";       
@@ -24,7 +20,6 @@ try {
     $conn->set_charset("utf8");
 
 } catch (Exception $e) {
-    // En lugar de JSON, mostramos un error visual y detenemos
     die("<script>alert('Error de conexión a la Base de Datos: " . addslashes($e->getMessage()) . "'); window.history.back();</script>");
 }
 ?>

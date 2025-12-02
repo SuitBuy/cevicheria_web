@@ -151,12 +151,10 @@
     </footer>
 
     <script>
-        // 1. EVENTO SCROLL (Solo para el Header)
         window.addEventListener('scroll', () => {
             const header = document.querySelector('.header-animado');
             if (header) header.classList.toggle('scrolled', window.scrollY > 50);
             
-            // Lógica del botón subir
             const scrollTopBtn = document.getElementById('scrollTopBtn');
             if (scrollTopBtn) {
                 if (window.scrollY > 300) scrollTopBtn.classList.add('show');
@@ -169,7 +167,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        // 2. MENÚ MÓVIL
         const menuToggle = document.getElementById('mobile-menu');
         const navMenu = document.querySelector('header nav ul');
 
@@ -179,7 +176,6 @@
             });
         }
 
-        // 3. ANIMACIÓN ZIG ZAG
         const observerOptions = {
             root: null,
             rootMargin: '0px',
