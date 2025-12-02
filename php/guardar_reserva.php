@@ -31,7 +31,7 @@ $edad = $_POST['edad'] ?? '';
 $email = $_POST['email'] ?? '';
 $telefono = $_POST['telefono'] ?? '';
 
-// Validación (Sin código de operación)
+// Validación (Ya NO valida código)
 if (empty($fecha) || empty($hora) || $personas <= 0 || empty($nombre) || empty($telefono)) {
     alertaYVolver("Faltan datos obligatorios. Verifica fecha, hora y teléfono.");
 }
@@ -55,12 +55,12 @@ if ($stmt_check) {
     }
 }
 
-// GUARDAR EN BD (Sin columna codigo_operacion)
+
 $sql_insertar = "INSERT INTO reservas (nombres, apellidos, dni, edad, email, telefono, personas, fecha, hora, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente')";
 $stmt = $conn->prepare($sql_insertar);
 
 if ($stmt) {
-    // 9 parámetros
+
     $stmt->bind_param("sssisssis", 
         $nombre, 
         $apellido, 

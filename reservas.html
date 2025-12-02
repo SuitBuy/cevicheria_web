@@ -125,7 +125,7 @@
                                 <input type="tel" id="telefono" name="telefono" placeholder="999 999 999" maxlength="9"
                                     required>
                                 <p style="font-size:0.8rem; color:#666; margin-top:5px;">
-                                    <i class="fab fa-whatsapp"></i> Te escribiremos a este número para confirmar el
+                                    <i class="fab fa-whatsapp"></i> Te escribiremos a este número para coordinar el
                                     pago.
                                 </p>
                             </div>
@@ -249,6 +249,7 @@
             goToStep(4);
         }
 
+        // --- FUNCIÓN LIMPIA SIN VALIDACIÓN DE CÓDIGO ---
         function finalizeReservation() {
             const nombre = document.getElementById('nombre').value.trim();
             const apellido = document.getElementById('apellido').value.trim();
@@ -264,7 +265,7 @@
             if (telefono.length < 9) return alert("Teléfono inválido");
             if (edad < 18) return alert("Debes ser mayor de edad para reservar");
 
-            // Pasamos datos a inputs ocultos
+            // Pasamos los datos
             document.getElementById('h_personas').value = reserva.personas;
             document.getElementById('h_fecha').value = reserva.fecha;
             document.getElementById('h_hora').value = reserva.hora;
@@ -273,7 +274,6 @@
             btnConfirm.innerText = "PROCESANDO...";
             btnConfirm.disabled = true;
 
-            // Enviamos el formulario
             document.getElementById('clientForm').submit();
         }
     </script>

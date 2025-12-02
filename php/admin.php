@@ -6,10 +6,10 @@ if (!isset($_SESSION['admin'])) {
 }
 require 'conexion.php';
 
-// --- LÓGICA DE EXPIRACIÓN AUTOMÁTICA ---
+// EXPIRACIÓN AUTOMÁTICA
 $conn->query("UPDATE reservas SET estado = 'Expirado' WHERE estado = 'Pendiente' AND fecha_registro < (NOW() - INTERVAL 30 MINUTE)");
 
-// --- ACCIONES DE BOTONES ---
+// ACCIONES
 if (isset($_GET['accion']) && isset($_GET['id'])) {
     $id = intval($_GET['id']);
     $accion = $_GET['accion'];
@@ -22,26 +22,26 @@ if (isset($_GET['accion']) && isset($_GET['id'])) {
     exit;
 }
 
-// --- BÚSQUEDA ---
+// BÚSQUEDA (Sin código)
 $where_clause = "1=1";
 $search_term = "";
 if (isset($_GET['q']) && !empty($_GET['q'])) {
     $search_term = $conn->real_escape_string($_GET['q']);
-    // Eliminado búsqueda por código
     $where_clause = "(nombres LIKE '%$search_term%' OR apellidos LIKE '%$search_term%' OR dni LIKE '%$search_term%' OR telefono LIKE '%$search_term%')";
 }
 
-// --- CONSULTA ---
+// CONSULTA
 $sql = "SELECT *, (fecha_registro < (NOW() - INTERVAL 30 MINUTE)) as vencido 
         FROM reservas 
         WHERE $where_clause 
         ORDER BY FIELD(estado, 'Pendiente', 'Confirmado', 'Rechazado', 'Expirado'), fecha DESC, hora ASC";
 $reservas = $conn->query($sql);
 
+// DATOS PARA WHATSAPP
 $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'admin';
 $nombre_empleado = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Admin';
 
-// --- ESTADÍSTICAS ---
+// ESTADÍSTICAS
 $hoy = date('Y-m-d');
 $stats_pendientes = $conn->query("SELECT COUNT(*) as c FROM reservas WHERE estado='Pendiente'")->fetch_assoc()['c'];
 $stats_hoy = $conn->query("SELECT COUNT(*) as c FROM reservas WHERE fecha='$hoy' AND estado='Confirmado'")->fetch_assoc()['c'];
