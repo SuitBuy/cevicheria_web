@@ -193,8 +193,8 @@
     </footer>
 
     <script>
-        // Objeto principal donde guardaremos toda la información de la reserva
-        let reserva = { personas: 0, fecha: '', hora: '', cliente: {} };
+        // Variables globales
+        let reserva = { personas: 0, fecha: '', hora: '' };
 
         function goToStep(stepNumber) {
             document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
@@ -214,6 +214,7 @@
             reserva.personas = num;
             document.getElementById('sumPersonas').innerText = num + (num === 1 ? ' persona' : ' personas');
             goToStep(2);
+            // Establecer fecha mínima a hoy
             const dateInput = document.getElementById('dateInput');
             dateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
         }
@@ -223,6 +224,7 @@
             const parts = input.value.split('-');
             const dateVal = new Date(parts[0], parts[1] - 1, parts[2]);
 
+            // Validación de Domingo (0)
             if (dateVal.getDay() === 0) {
                 document.getElementById('dateError').innerText = "No atendemos los domingos.";
                 input.value = "";
@@ -241,8 +243,9 @@
             goToStep(4);
         }
 
-        // --- FUNCIÓN ACTUALIZADA PARA CONECTAR CON PHP ---
+        // --- FUNCIÓN PRINCIPAL DE ENVÍO (MODIFICADA: SIN JSON) ---
         function finalizeReservation() {
+            // 1. Obtener valores de los inputs
             const nombre = document.getElementById('nombre').value.trim();
             const apellido = document.getElementById('apellido').value.trim();
             const dni = document.getElementById('dni').value.trim();
@@ -251,6 +254,7 @@
             const telefono = document.getElementById('telefono').value.trim();
             const codigo_operacion = document.getElementById('codigo_operacion').value.trim();
 
+            // 2. Validaciones básicas en el frontend
             if (!nombre || !apellido || !dni || !edad || !email || !telefono)
                 return alert("Por favor, completa todos tus datos personales.");
             
@@ -261,29 +265,42 @@
             if (telefono.length < 9) return alert("Teléfono inválido");
             if (edad < 18) return alert("Debes ser mayor de edad para reservar");
 
-            reserva.cliente = { nombre, apellido, dni, edad, email, telefono, codigo_operacion };
+            // 3. Crear FormData (ESTO ES LA CLAVE: simula un formulario HTML normal)
+            const formData = new FormData();
+            
+            // Agregamos los datos de la reserva
+            formData.append('personas', reserva.personas);
+            formData.append('fecha', reserva.fecha);
+            formData.append('hora', reserva.hora);
+            
+            // Agregamos los datos del cliente
+            formData.append('nombre', nombre);
+            formData.append('apellido', apellido);
+            formData.append('dni', dni);
+            formData.append('edad', edad);
+            formData.append('email', email);
+            formData.append('telefono', telefono);
+            formData.append('codigo_operacion', codigo_operacion);
 
-            // Feedback visual
+            // 4. Feedback visual al usuario
             const btnConfirm = document.querySelector('.btn-confirm');
             const originalText = btnConfirm.innerText;
             btnConfirm.innerText = "ENVIANDO...";
             btnConfirm.disabled = true;
 
-            // Enviar datos al backend
+            // 5. Enviar usando fetch (Sin header Content-Type JSON)
+            // El navegador detectará que es FormData y pondrá el header correcto automáticamente
             fetch('php/guardar_reserva.php', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(reserva)
+                body: formData 
             })
-            .then(response => response.json())
+            .then(response => response.json()) // Esperamos la respuesta del servidor
             .then(data => {
                 if (data.success) {
-                    alert( data.message);
-                    window.location.href = "index.html";
+                    alert("✅ " + data.message);
+                    window.location.href = "index.html"; // Redirigir al éxito
                 } else {
-                    alert(data.message);
+                    alert("⚠️ " + data.message);
                 }
             })
             .catch(error => {
@@ -291,6 +308,7 @@
                 alert("Hubo un error al conectar con el servidor. Inténtalo de nuevo.");
             })
             .finally(() => {
+                // Restaurar botón
                 btnConfirm.innerText = originalText;
                 btnConfirm.disabled = false;
             });
