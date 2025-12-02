@@ -10,7 +10,7 @@ ini_set('display_errors', 0);
 $host = "shuttle.proxy.rlwy.net"; 
 $usuario = "root";   
 $password = "mypyjIjXfTNKjoaxvrxpNBtDebvMWjDb";       
-$base_datos = "railway"; 
+$base_datos = "rinconcito_marino"; 
 $puerto = 29841; 
 
 // 3. INTENTAR CONECTAR
