@@ -119,6 +119,17 @@
                                 <label>Número de Teléfono</label>
                                 <input type="tel" id="telefono" placeholder="999 999 999" maxlength="9" required>
                             </div>
+
+                            <div class="input-group" style="background: #eefec3; padding: 15px; border-radius: 8px; margin-top:10px; border: 1px dashed #6f2dbd;">
+                                <label style="color: #6f2dbd; font-weight: bold;">
+                                    <i class="fas fa-qrcode"></i> Pago Yape / Plin
+                                </label>
+                                <p style="font-size: 0.8rem; margin-bottom: 10px; color: #333;">
+                                    Yapea al <strong>910 872 665</strong> y coloca el código de operación aquí para confirmar tu reserva:
+                                </p>
+                                <input type="text" id="codigo_operacion" placeholder="Ej. 123456" required 
+                                       style="border: 2px solid #6f2dbd; background: white;">
+                            </div>
                         </form>
                     </div>
 
@@ -182,121 +193,108 @@
     </footer>
 
     <script>
-
         // Objeto principal donde guardaremos toda la información de la reserva
         let reserva = { personas: 0, fecha: '', hora: '', cliente: {} };
 
-        // Cambia de un paso del wizard a otro (1, 2, 3 o 4)
         function goToStep(stepNumber) {
-            // Oculta todos los paneles
             document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-
-            // Muestra solo el panel que corresponde al número de paso
             document.getElementById('step' + stepNumber).classList.add('active');
-
-            // Actualiza los indicadores superiores (Personas, Fecha, Hora, Datos)
             updateIndicators(stepNumber);
         }
 
-        // Marca los indicadores activos según el paso actual
         function updateIndicators(currentStep) {
             for (let i = 1; i <= 4; i++) {
                 const ind = document.getElementById('ind' + i);
-
-                // Todos los pasos <= al actual quedan marcados en activo
                 if (i <= currentStep) ind.classList.add('active');
                 else ind.classList.remove('active');
             }
         }
 
-        // Selección de cantidad de personas
         function selectPeople(num) {
             reserva.personas = num;
-
-            // Actualiza el resumen
-            document.getElementById('sumPersonas').innerText =
-                num + (num === 1 ? ' persona' : ' personas');
-
-            // Avanza al paso 2 (fecha)
+            document.getElementById('sumPersonas').innerText = num + (num === 1 ? ' persona' : ' personas');
             goToStep(2);
-
-            // Evita seleccionar fechas pasadas
             const dateInput = document.getElementById('dateInput');
             dateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
         }
 
-        // Valida la fecha elegida
         function validateDate(input) {
             if (!input.value) return;
-
-            // Se separa YYYY-MM-DD
             const parts = input.value.split('-');
             const dateVal = new Date(parts[0], parts[1] - 1, parts[2]);
 
-            // 0 = domingo → no atienden
             if (dateVal.getDay() === 0) {
                 document.getElementById('dateError').innerText = "No atendemos los domingos.";
-                input.value = ""; // Limpiar fecha
+                input.value = "";
             } else {
-                // Fecha válida
                 document.getElementById('dateError').innerText = "";
                 reserva.fecha = input.value;
-
-                // Muestra fecha formateada larga en español
                 document.getElementById('sumFecha').innerText =
-                    dateVal.toLocaleDateString('es-ES', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    });
-
-                // Avanza al paso 3 (hora)
+                    dateVal.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
                 goToStep(3);
             }
         }
 
-        // Selección de hora
         function selectTime(time) {
             reserva.hora = time;
-
-            // Actualiza resumen
             document.getElementById('sumHora').innerText = time;
-
-            // Avanza al paso final (datos)
             goToStep(4);
         }
 
-        // Validación final y creación del objeto de reserva
+        // --- FUNCIÓN ACTUALIZADA PARA CONECTAR CON PHP ---
         function finalizeReservation() {
-
-            // Se leen todos los campos del formulario
             const nombre = document.getElementById('nombre').value.trim();
             const apellido = document.getElementById('apellido').value.trim();
             const dni = document.getElementById('dni').value.trim();
             const edad = document.getElementById('edad').value;
             const email = document.getElementById('email').value.trim();
             const telefono = document.getElementById('telefono').value.trim();
+            const codigo_operacion = document.getElementById('codigo_operacion').value.trim();
 
-            // Validaciones básicas
             if (!nombre || !apellido || !dni || !edad || !email || !telefono)
-                return alert("Completa todos los campos");
+                return alert("Por favor, completa todos tus datos personales.");
+            
+            if (!codigo_operacion)
+                return alert("Es necesario el código de operación de Yape/Plin para confirmar.");
 
-            if (dni.length !== 8) return alert("DNI inválido");
-            if (telefono.length !== 9) return alert("Teléfono inválido");
-            if (edad < 18) return alert("Debes ser mayor de edad");
+            if (dni.length !== 8) return alert("DNI inválido (debe tener 8 dígitos)");
+            if (telefono.length < 9) return alert("Teléfono inválido");
+            if (edad < 18) return alert("Debes ser mayor de edad para reservar");
 
-            // Guardamos los datos en el objeto 'reserva'
-            reserva.cliente = { nombre, apellido, dni, edad, email, telefono };
+            reserva.cliente = { nombre, apellido, dni, edad, email, telefono, codigo_operacion };
 
-            // Se imprime la reserva completa en formato JSON en consola
-            console.log("RESERVA:", JSON.stringify(reserva, null, 2));
+            // Feedback visual
+            const btnConfirm = document.querySelector('.btn-confirm');
+            const originalText = btnConfirm.innerText;
+            btnConfirm.innerText = "ENVIANDO...";
+            btnConfirm.disabled = true;
 
-            alert("Reserva enviada en el log de la consola.");
+            // Enviar datos al backend
+            fetch('php/guardar_reserva.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reserva)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert( data.message);
+                    window.location.href = "index.html";
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Hubo un error al conectar con el servidor. Inténtalo de nuevo.");
+            })
+            .finally(() => {
+                btnConfirm.innerText = originalText;
+                btnConfirm.disabled = false;
+            });
         }
-
     </script>
-
 </body>
-
 </html>

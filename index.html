@@ -94,13 +94,13 @@
 
         <div class="form-section-derecha">
             <h2>¡Queremos tu opinión!</h2>
-            <form id="opinionForm">
+            <form id="opinionForm" action="php/guardar_opinion.php" method="POST">
                 <label for="nombres">Nombres:</label>
                 <input type="text" id="nombres" name="nombres" required>
                 <label for="correo">Correo electrónico:</label>
                 <input type="email" id="correo" name="correo" required>
                 <label for="comentario">Comentario:</label>
-                <textarea id="comentario" name="comentario" rows="4"></textarea>
+                <textarea id="comentario" name="comentario" rows="4" required></textarea>
                 <button type="submit" class="btn">Enviar Opinión</button>
             </form>
         </div>
@@ -153,49 +153,49 @@
     <script>
         // 1. EVENTO SCROLL (Solo para el Header)
         window.addEventListener('scroll', () => {
-            // Selecciona el header que tendrá animación al hacer scroll
             const header = document.querySelector('.header-animado');
-
-            // Si existe, añade o quita la clase "scrolled" cuando se baja más de 50px
             if (header) header.classList.toggle('scrolled', window.scrollY > 50);
+            
+            // Lógica del botón subir
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+            if (scrollTopBtn) {
+                if (window.scrollY > 300) scrollTopBtn.classList.add('show');
+                else scrollTopBtn.classList.remove('show');
+            }
         });
 
-        // (Aquí hemos borrado toda la lógica del botón scrollTopBtn)
+        document.getElementById('scrollTopBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
 
         // 2. MENÚ MÓVIL
         const menuToggle = document.getElementById('mobile-menu');
         const navMenu = document.querySelector('header nav ul');
 
         if (menuToggle && navMenu) {
-            // Cuando se hace click en el botón del menú móvil
             menuToggle.addEventListener('click', () => {
-                navMenu.classList.toggle('active'); // Muestra u oculta el menú
+                navMenu.classList.toggle('active'); 
             });
         }
 
-        // 3. ANIMACIÓN ZIG ZAG (IntersectionObserver)
-        // Configuración del IntersectionObserver
+        // 3. ANIMACIÓN ZIG ZAG
         const observerOptions = {
-            root: null,             // Usa la ventana del navegador como área de observación
-            rootMargin: '0px',      // Sin margen extra
-            threshold: 0.1          // Se activa cuando el 10% del elemento es visible
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1 
         };
 
-        // Crea un observer que detecta cuando los elementos entran a la vista
         const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
-                // Si el elemento es visible
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('animated'); // Le agrega la animación
-                    observer.unobserve(entry.target); // Deja de observarlo (solo se anima una vez)
+                    entry.target.classList.add('animated');
+                    observer.unobserve(entry.target);
                 }
             });
         }, observerOptions);
 
-        // Selecciona todos los elementos con la clase "zigzag-item" y los observa
         document.querySelectorAll('.zigzag-item').forEach(item => observer.observe(item));
     </script>
-
 </body>
-
 </html>
