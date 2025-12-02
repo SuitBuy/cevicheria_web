@@ -1,28 +1,40 @@
 <?php
-header('Content-Type: application/json');
-require 'conexion.php';
+// IMPORTANTE: require debe ser la primera instrucción lógica
+require 'conexion.php'; 
 
-$data = json_decode(file_get_contents("php://input"), true);
+// Obtener el JSON enviado por JS
+$json = file_get_contents("php://input");
+$data = json_decode($json, true);
 
 if ($data) {
+    // Validar que existan los campos mínimos
+    if (!isset($data['fecha']) || !isset($data['hora']) || !isset($data['personas'])) {
+        echo json_encode(["success" => false, "message" => "Datos incompletos."]);
+        exit;
+    }
+
     $fecha = $data['fecha'];
     $hora = $data['hora'];
     $personas = $data['personas'];
     
     // --- LÓGICA DE AFORO ---
-    // Limite: 30 personas por bloque horario
-    $limite = 30; 
+    $limite = 30; // Capacidad máxima por turno
     
+    // Consulta preparada para evitar inyecciones SQL
     $check = $conn->prepare("SELECT SUM(personas) as total FROM reservas WHERE fecha = ? AND hora = ? AND estado != 'Rechazado' AND estado != 'Expirado'");
     $check->bind_param("ss", $fecha, $hora);
     $check->execute();
     $result = $check->get_result();
     $row = $result->fetch_assoc();
-    $ocupados = $row['total'] ? $row['total'] : 0;
+    
+    // Si es null (primera reserva), ponemos 0
+    $ocupados = $row['total'] ? intval($row['total']) : 0;
     $check->close();
 
+    // Validar capacidad
     if (($ocupados + $personas) > $limite) {
-        echo json_encode(["success" => false, "message" => "Lo sentimos, para las $hora solo nos quedan " . ($limite - $ocupados) . " asientos disponibles."]);
+        $disponibles = $limite - $ocupados;
+        echo json_encode(["success" => false, "message" => "Lo sentimos, a las $hora solo quedan $disponibles cupos disponibles."]);
         exit;
     }
 
@@ -43,11 +55,18 @@ if ($data) {
     );
 
     if ($stmt->execute()) {
-        echo json_encode(["success" => true, "message" => "¡Reserva recibida! Estamos validando tu pago."]);
+        echo json_encode(["success" => true, "message" => "¡Reserva recibida! Validaremos tu pago en breve."]);
     } else {
-        echo json_encode(["success" => false, "message" => "Error SQL: " . $stmt->error]);
+        // Enviar error SQL (útil para debug, en prod podrías poner un mensaje genérico)
+        echo json_encode(["success" => false, "message" => "Error al guardar: " . $stmt->error]);
     }
     $stmt->close();
+
+} else {
+    // CRÍTICO: Si $data es null (el JSON llegó mal o vacío), responder JSON de error
+    // Esto evita el "Unexpected end of JSON input" en el JS
+    echo json_encode(["success" => false, "message" => "No se recibieron datos válidos."]);
 }
+
 $conn->close();
 ?>

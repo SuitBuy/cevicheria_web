@@ -11,7 +11,7 @@ header('Content-Type: application/json; charset=utf-8');
 $host = "shuttle.proxy.rlwy.net"; 
 $usuario = "root";   
 $password = "mypyjIjXfTNKjoaxvrxpNBtDebvMWjDb";       
-$base_datos = "rinconcito_marino"; 
+$base_datos = "railway"; 
 $puerto = 29841; 
 
 // 3. INTENTAR CONECTAR CON CONTROL DE EXCEPCIONES
