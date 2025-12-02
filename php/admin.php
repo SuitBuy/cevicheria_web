@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['admin'])) { header("Location: login.php"); exit; }
-require 'php/conexion.php';
+require 'conexion.php';
 
 // --- LOGICA DE EXPIRACIÓN AUTOMÁTICA ---
 // Si pasaron 30 min y sigue Pendiente -> Expirado
