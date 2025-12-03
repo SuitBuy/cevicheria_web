@@ -389,7 +389,6 @@ $stats_opiniones = $conn->query("SELECT COUNT(*) as c FROM opiniones")->fetch_as
             filter: brightness(0.95);
         }
 
-        /* Estilo para el comentario largo */
         .comment-box {
             max-width: 400px;
             font-size: 0.9rem;
