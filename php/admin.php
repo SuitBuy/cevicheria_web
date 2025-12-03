@@ -6,37 +6,30 @@ if (!isset($_SESSION['admin'])) {
 }
 require 'conexion.php';
 
-// --- VARIABLES DE NAVEGACIÓN ---
-$view = isset($_GET['view']) ? $_GET['view'] : 'reservas'; // Por defecto reservas
+$view = isset($_GET['view']) ? $_GET['view'] : 'reservas'; 
 
-// --- LÓGICA DE EXPIRACIÓN AUTOMÁTICA (Solo para reservas) ---
 $conn->query("UPDATE reservas SET estado = 'Expirado' WHERE estado = 'Pendiente' AND fecha_registro < (NOW() - INTERVAL 30 MINUTE)");
 
-// --- ACCIONES DE BOTONES ---
 if (isset($_GET['accion']) && isset($_GET['id'])) {
     $id = intval($_GET['id']);
     $accion = $_GET['accion'];
 
-    // Acciones Reservas
     if ($accion == 'confirmar') $conn->query("UPDATE reservas SET estado = 'Confirmado' WHERE id = $id");
     if ($accion == 'rechazar') $conn->query("UPDATE reservas SET estado = 'Rechazado' WHERE id = $id");
     if ($accion == 'eliminar') $conn->query("DELETE FROM reservas WHERE id = $id");
 
-    // Acciones Opiniones
     if ($accion == 'eliminar_opinion') {
         $conn->query("DELETE FROM opiniones WHERE id = $id");
-        header("Location: admin.php?view=opiniones"); // Mantenerse en la vista opiniones
+        header("Location: admin.php?view=opiniones"); 
         exit;
     }
 
-    // Redirección general (para reservas)
     if ($accion != 'eliminar_opinion') {
         header("Location: admin.php?view=reservas");
         exit;
     }
 }
 
-// --- BÚSQUEDA ---
 $search_term = "";
 $where_clause = "1=1";
 
@@ -49,7 +42,6 @@ if (isset($_GET['q']) && !empty($_GET['q'])) {
     }
 }
 
-// --- CONSULTAS SEGÚN LA VISTA ---
 if ($view == 'reservas') {
     $sql = "SELECT *, (fecha_registro < (NOW() - INTERVAL 30 MINUTE)) as vencido 
             FROM reservas 
@@ -57,16 +49,13 @@ if ($view == 'reservas') {
             ORDER BY FIELD(estado, 'Pendiente', 'Confirmado', 'Rechazado', 'Expirado'), fecha DESC, hora ASC";
     $datos = $conn->query($sql);
 } else {
-    // Vista Opiniones
     $sql = "SELECT * FROM opiniones WHERE $where_clause ORDER BY id DESC";
     $datos = $conn->query($sql);
 }
 
-// --- DATOS SESIÓN ---
 $rol_usuario = isset($_SESSION['rol']) ? $_SESSION['rol'] : 'admin';
 $nombre_empleado = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : 'Admin';
 
-// --- ESTADÍSTICAS RÁPIDAS ---
 $hoy = date('Y-m-d');
 $stats_pendientes = $conn->query("SELECT COUNT(*) as c FROM reservas WHERE estado='Pendiente'")->fetch_assoc()['c'];
 $stats_hoy = $conn->query("SELECT COUNT(*) as c FROM reservas WHERE fecha='$hoy' AND estado='Confirmado'")->fetch_assoc()['c'];

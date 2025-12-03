@@ -9,7 +9,6 @@ $password = "mypyjIjXfTNKjoaxvrxpNBtDebvMWjDb";
 $base_datos = "rinconcito_marino"; 
 $puerto = 29841; 
 
-// 3. INTENTAR CONECTAR
 try {
     $conn = @new mysqli($host, $usuario, $password, $base_datos, $puerto);
 

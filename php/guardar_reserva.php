@@ -5,17 +5,20 @@ error_reporting(E_ALL);
 
 require 'conexion.php';
 
-function registrarLog($mensaje) {
+function registrarLog($mensaje)
+{
     $fecha = date("Y-m-d H:i:s");
     file_put_contents("debug_log.txt", "[$fecha] $mensaje" . PHP_EOL, FILE_APPEND);
 }
 
-function alertaYRedirigir($mensaje, $url) {
+function alertaYRedirigir($mensaje, $url)
+{
     echo "<script>alert('" . addslashes($mensaje) . "'); window.location.href = '$url';</script>";
     exit;
 }
 
-function alertaYVolver($mensaje) {
+function alertaYVolver($mensaje)
+{
     echo "<script>alert('" . addslashes($mensaje) . "'); window.history.back();</script>";
     exit;
 }
@@ -59,15 +62,16 @@ if (!$stmt) {
 }
 
 
-$stmt->bind_param("sssisssss", 
-    $nombre, 
-    $apellido, 
-    $dni, 
-    $edad, 
-    $email, 
+$stmt->bind_param(
+    "sssisssss",
+    $nombre,
+    $apellido,
+    $dni,
+    $edad,
+    $email,
     $telefono,
-    $personas, 
-    $fecha, 
+    $personas,
+    $fecha,
     $hora
 );
 
@@ -81,4 +85,3 @@ if ($stmt->execute()) {
 
 $stmt->close();
 $conn->close();
-?>
