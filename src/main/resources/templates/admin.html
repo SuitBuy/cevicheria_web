@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Rinconcito Marino</title>
+    <link rel="icon" type="image/png" th:href="@{/assets/logo.png}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="admin-layout">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/admin}">
+            <img th:src="@{/assets/logo.png}" alt="Rinconcito Marino">
+            <span class="fw-semibold">Panel Rinconcito Marino</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="adminNav">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${view == 'reservas'} ? ' active'" th:href="@{/admin}">
+                        <i class="fa-regular fa-calendar-check"></i> Reservas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:classappend="${view == 'opiniones'} ? ' active'" th:href="@{/admin/opiniones}">
+                        <i class="fa-regular fa-comments"></i> Opiniones
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link disabled" href="#">
+                        <i class="fa-solid fa-users-gear"></i> Usuarios
+                    </a>
+                </li>
+                <li class="nav-item text-white-50 px-lg-2">
+                    <span sec:authentication="name">admin</span>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="btn btn-outline-light btn-sm">
+                            <i class="fa-solid fa-right-from-bracket"></i> Salir
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container-fluid px-4 py-4">
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-secondary mb-1">Pendientes</p>
+                        <h2 class="fw-bold mb-0" th:text="${stats.pendientes}">0</h2>
+                    </div>
+                    <i class="fa-regular fa-clock fs-1 text-warning"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-secondary mb-1">Confirmadas hoy</p>
+                        <h2 class="fw-bold mb-0" th:text="${stats.confirmadasHoy}">0</h2>
+                    </div>
+                    <i class="fa-solid fa-circle-check fs-1 text-success"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-secondary mb-1">Opiniones</p>
+                        <h2 class="fw-bold mb-0" th:text="${stats.opiniones}">0</h2>
+                    </div>
+                    <i class="fa-regular fa-message fs-1 text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="row g-3 align-items-center mb-3">
+                <div class="col-md-6">
+                    <h1 class="h4 fw-bold mb-0" th:text="${view == 'opiniones'} ? 'Gestion de opiniones' : 'Gestion de reservas'">Gestion</h1>
+                </div>
+                <div class="col-md-6">
+                    <form class="d-flex gap-2" method="get" th:action="${view == 'opiniones'} ? @{/admin/opiniones} : @{/admin}">
+                        <input type="search" class="form-control" name="q" th:value="${q}" placeholder="Buscar...">
+                        <button class="btn btn-rm" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </form>
+                </div>
+            </div>
+
+            <div th:if="${view == 'reservas'}" class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Contacto</th>
+                        <th>Reserva</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="reserva : ${reservas}">
+                        <td>
+                            <div class="fw-semibold" th:text="${reserva.nombreCompleto}">Cliente</div>
+                            <div class="small text-secondary">DNI <span th:text="${reserva.dni}">00000000</span> - <span th:text="${reserva.edad}">18</span> anos</div>
+                        </td>
+                        <td>
+                            <div th:text="${reserva.telefono}">999999999</div>
+                            <div class="small text-secondary" th:text="${reserva.email}">correo@demo.com</div>
+                        </td>
+                        <td>
+                            <div><span th:text="${reserva.personas}">2</span> persona(s)</div>
+                            <div class="small text-secondary">
+                                <span th:text="${#temporals.format(reserva.fecha, 'dd/MM/yyyy')}">01/01/2026</span>
+                                - <span th:text="${reserva.hora}">12:00 PM</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge" th:classappend="' text-bg-' + ${reserva.estado.badgeClass}" th:text="${reserva.estado.etiqueta}">Pendiente</span>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-wrap justify-content-end gap-2">
+                                <a class="btn btn-success btn-sm"
+                                   target="_blank"
+                                   rel="noreferrer"
+                                   th:href="@{'https://wa.me/51910872665'(text=${reserva.whatsappMensaje})}">
+                                    <i class="fab fa-whatsapp"></i>
+                                </a>
+                                <form th:if="${reserva.estado.name() == 'PENDIENTE'}" th:action="@{/admin/reservas/{id}/estado(id=${reserva.id})}" method="post">
+                                    <input type="hidden" name="estado" value="CONFIRMADO">
+                                    <button class="btn btn-outline-success btn-sm" type="submit">Confirmar</button>
+                                </form>
+                                <form th:if="${reserva.estado.name() == 'PENDIENTE'}" th:action="@{/admin/reservas/{id}/estado(id=${reserva.id})}" method="post">
+                                    <input type="hidden" name="estado" value="RECHAZADO">
+                                    <button class="btn btn-outline-danger btn-sm" type="submit">Rechazar</button>
+                                </form>
+                                <form th:action="@{/admin/reservas/{id}/eliminar(id=${reserva.id})}" method="post" onsubmit="return confirm('Eliminar esta reserva?')">
+                                    <button class="btn btn-outline-secondary btn-sm" type="submit"><i class="fa-regular fa-trash-can"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(reservas)}">
+                        <td colspan="5" class="text-center text-secondary py-5">No hay reservas para mostrar.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${view == 'opiniones'}" class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Comentario</th>
+                        <th>Fecha</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="opinion : ${opiniones}">
+                        <td th:text="${opinion.nombres}">Nombre</td>
+                        <td th:text="${opinion.correo}">correo@demo.com</td>
+                        <td th:text="${opinion.comentario}">Comentario</td>
+                        <td th:text="${#temporals.format(opinion.fechaRegistro, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
+                        <td class="text-end">
+                            <form th:action="@{/admin/opiniones/{id}/eliminar(id=${opinion.id})}" method="post" onsubmit="return confirm('Eliminar esta opinion?')">
+                                <button class="btn btn-outline-secondary btn-sm" type="submit"><i class="fa-regular fa-trash-can"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(opiniones)}">
+                        <td colspan="5" class="text-center text-secondary py-5">No hay opiniones para mostrar.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
