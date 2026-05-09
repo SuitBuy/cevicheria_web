@@ -19,6 +19,7 @@ Configura estas variables en el servicio Spring Boot:
 
 ```env
 SPRING_PROFILES_ACTIVE=prod
+NIXPACKS_JDK_VERSION=21
 JWT_SECRET=un-secreto-largo-y-aleatorio
 JWT_EXPIRATION_MINUTES=480
 JWT_COOKIE_SECURE=true
