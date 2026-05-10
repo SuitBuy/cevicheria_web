@@ -32,7 +32,7 @@ public class ReservaService {
     public ReservaService(
             ReservaRepository reservaRepository,
             OpinionRepository opinionRepository,
-            @Value("${app.restaurant.whatsapp-number:51910872665}") String whatsappNumber
+            @Value("${app.restaurant.whatsapp-number:}") String whatsappNumber
     ) {
         this.reservaRepository = reservaRepository;
         this.opinionRepository = opinionRepository;
@@ -97,8 +97,15 @@ public class ReservaService {
     }
 
     public String generarWhatsappUrl(Reserva reserva) {
+        if (whatsappNumber == null || whatsappNumber.isBlank()) {
+            return null;
+        }
         String mensaje = URLEncoder.encode(reserva.getWhatsappMensaje(), StandardCharsets.UTF_8);
-        return "https://wa.me/" + whatsappNumber + "?text=" + mensaje;
+        return "https://wa.me/" + whatsappNumber.trim() + "?text=" + mensaje;
+    }
+
+    public String getWhatsappNumber() {
+        return whatsappNumber == null ? "" : whatsappNumber.trim();
     }
 
     private Specification<Reserva> specBusqueda(String busqueda) {

@@ -98,6 +98,7 @@ public class WebController {
         model.addAttribute("reservas", reservaService.listarReservas(q));
         model.addAttribute("stats", reservaService.calcularStats());
         model.addAttribute("estados", EstadoReserva.values());
+        model.addAttribute("whatsappNumber", reservaService.getWhatsappNumber());
         return "admin";
     }
 
