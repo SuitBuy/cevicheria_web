@@ -3,9 +3,14 @@ package com.rinconcitomarino.controller;
 import com.rinconcitomarino.model.EstadoReserva;
 import com.rinconcitomarino.model.Opinion;
 import com.rinconcitomarino.model.Reserva;
+import com.rinconcitomarino.model.RolUsuario;
+import com.rinconcitomarino.model.UsuarioAdmin;
+import com.rinconcitomarino.repository.UsuarioAdminRepository;
 import com.rinconcitomarino.service.OpinionService;
 import com.rinconcitomarino.service.ReservaService;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,10 +28,19 @@ public class WebController {
 
     private final ReservaService reservaService;
     private final OpinionService opinionService;
+    private final UsuarioAdminRepository usuarioAdminRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public WebController(ReservaService reservaService, OpinionService opinionService) {
+    public WebController(
+            ReservaService reservaService,
+            OpinionService opinionService,
+            UsuarioAdminRepository usuarioAdminRepository,
+            PasswordEncoder passwordEncoder
+    ) {
         this.reservaService = reservaService;
         this.opinionService = opinionService;
+        this.usuarioAdminRepository = usuarioAdminRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/")
@@ -120,6 +134,60 @@ public class WebController {
         model.addAttribute("opiniones", opinionService.listar(q));
         model.addAttribute("stats", reservaService.calcularStats());
         return "admin";
+    }
+
+    @GetMapping("/admin/usuarios")
+    public String adminUsuarios(Model model, Authentication authentication) {
+        model.addAttribute("view", "usuarios");
+        model.addAttribute("usuarios", usuarioAdminRepository.findAll());
+        model.addAttribute("roles", RolUsuario.values());
+        model.addAttribute("currentUser", authentication == null ? "" : authentication.getName());
+        model.addAttribute("stats", reservaService.calcularStats());
+        return "admin";
+    }
+
+    @PostMapping("/admin/usuarios")
+    public String crearUsuario(
+            @RequestParam String usuario,
+            @RequestParam String password,
+            @RequestParam RolUsuario rol,
+            RedirectAttributes redirectAttributes
+    ) {
+        String usuarioLimpio = usuario == null ? "" : usuario.trim();
+        if (usuarioLimpio.length() < 3 || password == null || password.length() < 8) {
+            redirectAttributes.addFlashAttribute("userError", "Usuario minimo 3 caracteres y contrasena minimo 8 caracteres.");
+            return "redirect:/admin/usuarios";
+        }
+        if (usuarioAdminRepository.findByUsuario(usuarioLimpio).isPresent()) {
+            redirectAttributes.addFlashAttribute("userError", "Ese usuario ya existe.");
+            return "redirect:/admin/usuarios";
+        }
+
+        UsuarioAdmin nuevoUsuario = new UsuarioAdmin();
+        nuevoUsuario.setUsuario(usuarioLimpio);
+        nuevoUsuario.setPassword(passwordEncoder.encode(password));
+        nuevoUsuario.setRol(rol);
+        usuarioAdminRepository.save(nuevoUsuario);
+        redirectAttributes.addFlashAttribute("userOk", "Usuario creado correctamente.");
+        return "redirect:/admin/usuarios";
+    }
+
+    @PostMapping("/admin/usuarios/{id}/eliminar")
+    public String eliminarUsuario(
+            @PathVariable Long id,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
+    ) {
+        UsuarioAdmin usuario = usuarioAdminRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + id));
+        String currentUser = authentication == null ? "" : authentication.getName();
+        if (usuario.getUsuario().equalsIgnoreCase(currentUser)) {
+            redirectAttributes.addFlashAttribute("userError", "No puedes eliminar tu propio usuario.");
+            return "redirect:/admin/usuarios";
+        }
+        usuarioAdminRepository.delete(usuario);
+        redirectAttributes.addFlashAttribute("userOk", "Usuario eliminado correctamente.");
+        return "redirect:/admin/usuarios";
     }
 
     @PostMapping("/admin/opiniones/{id}/eliminar")
