@@ -106,10 +106,6 @@ public class ReservaService {
         return "https://wa.me/" + whatsappNumber.trim() + "?text=" + mensaje;
     }
 
-    public String getWhatsappNumber() {
-        return whatsappNumber == null ? "" : whatsappNumber.trim();
-    }
-
     private Specification<Reserva> specBusqueda(String busqueda) {
         if (busqueda == null || busqueda.isBlank()) {
             return (root, query, cb) -> cb.conjunction();

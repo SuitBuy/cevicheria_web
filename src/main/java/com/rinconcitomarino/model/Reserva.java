@@ -16,7 +16,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.net.URLEncoder;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -107,6 +109,19 @@ public class Reserva {
                 + " persona(s) el " + fechaTexto + " a las " + hora
                 + " esta pendiente. Para confirmarla, coordina el adelanto de S/ "
                 + new BigDecimal("20.00") + ".";
+    }
+
+    @Transient
+    public String getWhatsappClienteUrl() {
+        if (telefono == null || telefono.isBlank()) {
+            return null;
+        }
+        String telefonoLimpio = telefono.replaceAll("\\D", "");
+        if (telefonoLimpio.length() == 9) {
+            telefonoLimpio = "51" + telefonoLimpio;
+        }
+        String mensaje = URLEncoder.encode(getWhatsappMensaje(), StandardCharsets.UTF_8);
+        return "https://wa.me/" + telefonoLimpio + "?text=" + mensaje;
     }
 
     public Long getId() {

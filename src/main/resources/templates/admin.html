@@ -137,10 +137,10 @@
                         <td>
                             <div class="d-flex flex-wrap justify-content-end gap-2">
                                 <a class="btn btn-success btn-sm"
-                                   th:if="${whatsappNumber != null and !#strings.isEmpty(whatsappNumber)}"
+                                   th:if="${reserva.whatsappClienteUrl}"
                                    target="_blank"
                                    rel="noreferrer"
-                                   th:href="@{'https://wa.me/' + ${whatsappNumber}(text=${reserva.whatsappMensaje})}">
+                                   th:href="${reserva.whatsappClienteUrl}">
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
                                 <form th:if="${reserva.estado.name() == 'PENDIENTE'}" th:action="@{/admin/reservas/{id}/estado(id=${reserva.id})}" method="post">
