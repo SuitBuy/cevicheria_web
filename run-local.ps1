@@ -95,4 +95,4 @@ if (-not $NoBrowser) {
 
 Write-Host "Listo: http://localhost:$Port/"
 Write-Host "Logs: $outLog"
-Write-Host "Para detenerlo: .\stop-local.ps1"
+Write-Host "Para detenerlo: .\stop-local.cmd"
