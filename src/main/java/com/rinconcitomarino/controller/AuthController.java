@@ -90,6 +90,7 @@ public class AuthController {
                 .build();
     }
 
+    
     private ResponseCookie limpiarCookie(HttpServletRequest request) {
         return ResponseCookie.from(cookieName, "")
                 .httpOnly(true)
