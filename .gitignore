@@ -2,4 +2,4 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 *.log
 debug_log.txt
-
+.local-server.pid
