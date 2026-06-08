@@ -89,8 +89,6 @@ public class AuthController {
                 .maxAge(Duration.ofMinutes(authenticationService.getExpirationMinutes()))
                 .build();
     }
-
-    
     private ResponseCookie limpiarCookie(HttpServletRequest request) {
         return ResponseCookie.from(cookieName, "")
                 .httpOnly(true)
