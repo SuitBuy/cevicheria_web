@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET,
-                                "/", "/reservas", "/login", "/carta", "/css/**", "/assets/**", "/favicon.ico"
+                                "/", "/reservas", "/login", "/carta", "/health", "/css/**", "/assets/**", "/favicon.ico"
                         ).permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.POST,
