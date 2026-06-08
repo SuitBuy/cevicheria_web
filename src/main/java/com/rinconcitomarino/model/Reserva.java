@@ -21,11 +21,14 @@ import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "reservas")
 public class Reserva {
+
+    private static final ZoneId LIMA_ZONE = ZoneId.of("America/Lima");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -89,7 +92,7 @@ public class Reserva {
     @PrePersist
     void prePersist() {
         if (fechaRegistro == null) {
-            fechaRegistro = LocalDateTime.now();
+            fechaRegistro = LocalDateTime.now(LIMA_ZONE);
         }
         if (estado == null) {
             estado = EstadoReserva.PENDIENTE;
