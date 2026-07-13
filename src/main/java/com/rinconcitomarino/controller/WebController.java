@@ -11,6 +11,7 @@ import com.rinconcitomarino.service.ReservaService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -106,11 +108,29 @@ public class WebController {
     }
 
     @GetMapping("/admin")
-    public String admin(@RequestParam(required = false) String q, Model model) {
+    public String dashboard(Model model) {
+        reservaService.expirarPendientesVencidas();
+        model.addAttribute("view", "dashboard");
+        model.addAttribute("stats", reservaService.calcularStats());
+        model.addAttribute("reservasHoy", reservaService.listarReservasHoy());
+        model.addAttribute("reservasUrgentes", reservaService.listarPendientesUrgentes());
+        model.addAttribute("opinionesRecientes", opinionService.listar(null).stream().limit(5).toList());
+        return "admin";
+    }
+
+    @GetMapping("/admin/reservas")
+    public String adminReservas(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) EstadoReserva estado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            Model model
+    ) {
         reservaService.expirarPendientesVencidas();
         model.addAttribute("view", "reservas");
         model.addAttribute("q", q);
-        model.addAttribute("reservas", reservaService.listarReservas(q));
+        model.addAttribute("estadoFiltro", estado);
+        model.addAttribute("fechaFiltro", fecha);
+        model.addAttribute("reservas", reservaService.listarReservas(q, estado, fecha));
         model.addAttribute("stats", reservaService.calcularStats());
         model.addAttribute("estados", EstadoReserva.values());
         return "admin";
@@ -119,13 +139,13 @@ public class WebController {
     @PostMapping("/admin/reservas/{id}/estado")
     public String cambiarEstadoReserva(@PathVariable Long id, @RequestParam EstadoReserva estado) {
         reservaService.cambiarEstado(id, estado);
-        return "redirect:/admin";
+        return "redirect:/admin/reservas";
     }
 
     @PostMapping("/admin/reservas/{id}/eliminar")
     public String eliminarReserva(@PathVariable Long id) {
         reservaService.eliminar(id);
-        return "redirect:/admin";
+        return "redirect:/admin/reservas";
     }
 
     @GetMapping("/admin/opiniones")

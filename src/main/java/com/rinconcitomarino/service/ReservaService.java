@@ -17,9 +17,12 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 
@@ -56,12 +59,44 @@ public class ReservaService {
 
     @Transactional(readOnly = true)
     public List<Reserva> listarReservas(String busqueda) {
+        return listarReservas(busqueda, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Reserva> listarReservas(String busqueda, EstadoReserva estado, LocalDate fecha) {
         List<Reserva> reservas = reservaRepository.findAll(specBusqueda(busqueda));
-        reservas.sort(Comparator
-                .comparingInt((Reserva reserva) -> reserva.getEstado().getOrden())
-                .thenComparing(Reserva::getFecha, Comparator.nullsLast(Comparator.reverseOrder()))
-                .thenComparing(Reserva::getHora, Comparator.nullsLast(String::compareTo)));
+        if (estado != null) {
+            reservas = reservas.stream()
+                    .filter(reserva -> reserva.getEstado() == estado)
+                    .toList();
+        }
+        if (fecha != null) {
+            reservas = reservas.stream()
+                    .filter(reserva -> fecha.equals(reserva.getFecha()))
+                    .toList();
+        }
+        ordenarReservas(reservas);
         return reservas;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Reserva> listarReservasHoy() {
+        LocalDate hoy = LocalDate.now(LIMA_ZONE);
+        List<Reserva> reservas = reservaRepository.findAll().stream()
+                .filter(reserva -> hoy.equals(reserva.getFecha()))
+                .toList();
+        return ordenarReservasPorHora(reservas);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Reserva> listarPendientesUrgentes() {
+        LocalDate hoy = LocalDate.now(LIMA_ZONE);
+        LocalDate manana = hoy.plusDays(1);
+        List<Reserva> reservas = reservaRepository.findAll().stream()
+                .filter(reserva -> reserva.getEstado() == EstadoReserva.PENDIENTE)
+                .filter(reserva -> reserva.getFecha() != null && !reserva.getFecha().isBefore(hoy) && !reserva.getFecha().isAfter(manana))
+                .toList();
+        return ordenarReservasPorHora(reservas);
     }
 
     @Transactional
@@ -91,10 +126,34 @@ public class ReservaService {
     @Transactional(readOnly = true)
     public ReservaStats calcularStats() {
         LocalDate hoy = LocalDate.now(LIMA_ZONE);
+        YearMonth mesActual = YearMonth.from(hoy);
+        List<Reserva> reservas = reservaRepository.findAll();
+        long personasHoy = reservas.stream()
+                .filter(reserva -> hoy.equals(reserva.getFecha()))
+                .filter(reserva -> reserva.getEstado() == EstadoReserva.CONFIRMADO || reserva.getEstado() == EstadoReserva.PENDIENTE)
+                .mapToLong(reserva -> reserva.getPersonas() == null ? 0 : reserva.getPersonas())
+                .sum();
+        long reservasMes = reservas.stream()
+                .filter(reserva -> reserva.getFecha() != null && YearMonth.from(reserva.getFecha()).equals(mesActual))
+                .count();
+        String horarioMasReservado = reservas.stream()
+                .filter(reserva -> hoy.equals(reserva.getFecha()))
+                .filter(reserva -> reserva.getHora() != null && !reserva.getHora().isBlank())
+                .collect(Collectors.groupingBy(Reserva::getHora, Collectors.counting()))
+                .entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse("Sin reservas");
         return new ReservaStats(
                 reservaRepository.countByEstado(EstadoReserva.PENDIENTE),
                 reservaRepository.countByFechaAndEstado(hoy, EstadoReserva.CONFIRMADO),
-                opinionRepository.count()
+                reservaRepository.countByEstado(EstadoReserva.RECHAZADO),
+                reservaRepository.countByEstado(EstadoReserva.EXPIRADO),
+                personasHoy,
+                reservasMes,
+                opinionRepository.count(),
+                horarioMasReservado
         );
     }
 
@@ -119,5 +178,20 @@ public class ReservaService {
             Predicate email = cb.like(cb.lower(root.get("email")), termino);
             return cb.or(nombres, apellidos, dni, telefono, email);
         };
+    }
+
+    private void ordenarReservas(List<Reserva> reservas) {
+        reservas.sort(Comparator
+                .comparingInt((Reserva reserva) -> reserva.getEstado().getOrden())
+                .thenComparing(Reserva::getFecha, Comparator.nullsLast(Comparator.reverseOrder()))
+                .thenComparing(Reserva::getHora, Comparator.nullsLast(String::compareTo)));
+    }
+
+    private List<Reserva> ordenarReservasPorHora(List<Reserva> reservas) {
+        return reservas.stream()
+                .sorted(Comparator
+                        .comparing(Reserva::getFecha, Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(Reserva::getHora, Comparator.nullsLast(String::compareTo)))
+                .toList();
     }
 }
