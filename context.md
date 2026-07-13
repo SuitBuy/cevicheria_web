@@ -548,15 +548,138 @@ Si se quiere personalizar mas el admin, agregar clases propias en `admin.html` y
 - Tiene rutas web Thymeleaf y endpoints REST.
 - Tiene autenticacion con Spring Security.
 - Tiene JWT para mantener sesion mediante cookie.
-- Tiene roles internos para proteger administracion de usuarios.
+- Tiene roles internos para proteger administracion de usuarios y acciones sensibles.
 - Tiene validaciones de formularios con Jakarta Validation.
 - Tiene CRUD parcial/completo para reservas, opiniones y usuarios.
 - Usa variables de entorno para despliegue.
+- Tiene auditoria basica de cambios sobre reservas.
+- Tiene moderacion de opiniones sin necesidad de borrar directamente.
+- Tiene exportacion CSV de reservas desde el panel administrativo.
+
+## Cambios nuevos del ultimo avance
+
+### Dashboard administrativo mas completo
+
+El panel `/admin` dejo de ser solo una vista resumen y ahora funciona como tablero operativo del restaurante. Muestra indicadores utiles para un empleado:
+
+- Reservas pendientes.
+- Reservas de hoy.
+- Confirmadas del dia.
+- Personas esperadas.
+- Horario mas solicitado.
+- Reservas rechazadas.
+- Reservas expiradas.
+- Reservas atendidas.
+- Clientes que no asistieron.
+- Cancelaciones por cliente.
+- Opiniones recibidas.
+- Historial reciente de acciones.
+
+La informacion se calcula desde `ReservaService.calcularStats()` y se expone mediante el record `ReservaStats`.
+
+Archivos clave:
+
+- `src/main/java/com/rinconcitomarino/dto/ReservaStats.java`
+- `src/main/java/com/rinconcitomarino/service/ReservaService.java`
+- `src/main/resources/templates/admin.html`
+
+### Estados nuevos para reservas
+
+La entidad `Reserva` mantiene un estado controlado por el enum `EstadoReserva`. Se agregaron estados para representar mejor el flujo real de atencion:
+
+- `PENDIENTE`: reserva creada, aun no confirmada.
+- `CONFIRMADO`: reserva aceptada por el personal.
+- `ATENDIDO`: cliente llego y fue atendido.
+- `NO_ASISTIO`: cliente no llego a la reserva.
+- `CANCELADO_CLIENTE`: cancelacion solicitada por el cliente.
+- `RECHAZADO`: reserva no aceptada.
+- `EXPIRADO`: reserva pendiente que vencio.
+
+Archivo clave:
+
+- `src/main/java/com/rinconcitomarino/model/EstadoReserva.java`
+
+### Historial y auditoria de reservas
+
+Se agrego una entidad nueva para guardar movimientos importantes sobre reservas. Cada cambio de estado o eliminacion registra:
+
+- ID de la reserva.
+- Usuario que hizo la accion.
+- Tipo de accion.
+- Detalle.
+- Fecha y hora.
+
+Esto permite explicar el concepto de auditoria basica: el sistema no solo cambia datos, tambien deja trazabilidad de quien hizo cada operacion.
+
+Archivos clave:
+
+- `src/main/java/com/rinconcitomarino/model/ReservaHistorial.java`
+- `src/main/java/com/rinconcitomarino/repository/ReservaHistorialRepository.java`
+- `src/main/java/com/rinconcitomarino/service/ReservaService.java`
+
+### Filtros avanzados y exportacion
+
+La vista `/admin/reservas` permite filtrar por:
+
+- Texto libre: nombre, DNI, telefono o correo.
+- Estado.
+- Fecha desde.
+- Fecha hasta.
+- Cantidad de personas.
+- Hora.
+
+Tambien se agrego una ruta para exportar el resultado a CSV:
+
+- `GET /admin/reservas/exportar`
+
+Esto permite defender una funcionalidad real de negocio: generar reportes de reservas para revision diaria o mensual.
+
+Archivo clave:
+
+- `src/main/java/com/rinconcitomarino/controller/WebController.java`
+
+### Moderacion de opiniones
+
+Las opiniones ahora no solo se eliminan. Tienen campos de moderacion:
+
+- `visible`: define si una opinion se muestra o se oculta.
+- `destacado`: permite marcar opiniones importantes.
+
+Esto mejora la administracion del contenido recibido de clientes.
+
+Archivos clave:
+
+- `src/main/java/com/rinconcitomarino/model/Opinion.java`
+- `src/main/java/com/rinconcitomarino/service/OpinionService.java`
+- `src/main/resources/templates/admin.html`
+
+### Roles mejor definidos
+
+Los roles actuales son:
+
+- `ADMIN`: administra usuarios, elimina reservas/opiniones y tiene permisos completos.
+- `EMPLEADO`: gestiona reservas y modera opiniones, pero no administra usuarios.
+- `LECTOR`: puede ver el dashboard y datos, pero no modificar.
+
+La seguridad se controla desde `SecurityConfig`, usando reglas por ruta y metodo HTTP.
+
+Archivos clave:
+
+- `src/main/java/com/rinconcitomarino/model/RolUsuario.java`
+- `src/main/java/com/rinconcitomarino/config/SecurityConfig.java`
+
+### Script SQL de prueba
+
+Se actualizo el script:
+
+- `sql/seed_reservas_opiniones.sql`
+
+Ahora inserta reservas con estados variados y opiniones con campos de moderacion (`visible`, `destacado`).
 
 ## Riesgos y limites actuales
 
 - El admin de usuarios crea y elimina, pero no edita usuarios existentes.
-- Opiniones no tienen estado de moderacion; se eliminan directamente.
+- La moderacion de opiniones ya existe, pero la pagina publica aun no diferencia visualmente opiniones destacadas.
 - La carta es PDF estatico.
 - Los platos destacados estan definidos en `WebController.cargarInicio()`, no en base de datos.
 - El contenido publico no tiene CMS/admin editable.
@@ -565,13 +688,13 @@ Si se quiere personalizar mas el admin, agregar clases propias en `admin.html` y
 ## Recomendaciones para siguientes avances
 
 1. Crear CRUD de platos/carta desde admin.
-2. Agregar estados de opinion: pendiente, aprobado, oculto.
-3. Agregar dashboard real con reservas por dia, ocupacion y horarios mas pedidos.
-4. Agregar modulo de disponibilidad de horarios.
-5. Agregar edicion de contenido publico desde admin.
-6. Agregar subida de imagenes para platos.
-7. Agregar paginacion en tablas admin.
-8. Agregar auditoria basica: quien confirma/rechaza reservas.
+2. Mostrar opiniones destacadas en la pagina principal.
+3. Agregar modulo de disponibilidad de horarios.
+4. Agregar edicion de contenido publico desde admin.
+5. Agregar subida de imagenes para platos.
+6. Agregar paginacion en tablas admin.
+7. Agregar filtros por usuario en historial/auditoria.
+8. Agregar exportacion XLSX ademas de CSV.
 9. Agregar tests de servicios y controladores.
 10. Mejorar UI admin con tarjetas por modulo y filtros por estado/fecha.
 
