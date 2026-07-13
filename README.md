@@ -19,15 +19,14 @@ Configura estas variables en el servicio Spring Boot:
 
 ```env
 SPRING_PROFILES_ACTIVE=prod
-NIXPACKS_JDK_VERSION=21
-JWT_SECRET=un-secreto-largo-y-aleatorio
+JWT_SECRET=
 JWT_EXPIRATION_MINUTES=480
 JWT_COOKIE_SECURE=true
 ADMIN_BOOTSTRAP_ENABLED=true
-ADMIN_USER=admin
-ADMIN_PASSWORD=una-contrasena-segura
+ADMIN_USER=
+ADMIN_PASSWORD=
 ADMIN_ROLE=ADMIN
-WHATSAPP_NUMBER=51910872665
+WHATSAPP_NUMBER=
 RESERVATION_FEE=20.00
 DDL_AUTO=update
 ```
@@ -40,8 +39,8 @@ OPINION_EMAIL_TO=restaurante@suuit.dev
 MAIL_FROM="Rinconcito Marino <no-reply@suuit.dev>"
 SPRING_MAIL_HOST=smtp.example.com
 SPRING_MAIL_PORT=587
-SPRING_MAIL_USERNAME=usuario-smtp
-SPRING_MAIL_PASSWORD=password-smtp
+SPRING_MAIL_USERNAME=
+SPRING_MAIL_PASSWORD=
 SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=true
 SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=true
 ```
@@ -63,7 +62,7 @@ MYSQLPASSWORD
 1. Conecta Railway al repositorio GitHub.
 2. Crea/agrega una base MySQL en Railway.
 3. En el servicio web, agrega las variables anteriores.
-4. Despliega desde la rama principal.
+4. Despliega desde la rama configurada en Railway.
 5. Entra a `/login` con `ADMIN_USER` y `ADMIN_PASSWORD`.
 6. Despues del primer login, cambia la clave desde base de datos o rota `ADMIN_PASSWORD` y elimina el usuario si necesitas recrearlo.
 
@@ -80,14 +79,24 @@ Activa HTTPS desde Railway y manten `JWT_COOKIE_SECURE=true`.
 
 ## Desarrollo local
 
-```bash
-mvn spring-boot:run
+En Windows:
+
+```powershell
+.\run-local.cmd
 ```
 
-Por defecto espera MySQL local en:
+Esto levanta la app con H2 en memoria y abre `http://localhost:8081`.
 
-```env
-jdbc:mysql://localhost:3306/rinconcito_marino
+Para crear un usuario admin local en memoria, pasa credenciales por parametro o variables de entorno:
+
+```powershell
+.\run-local.cmd -AdminUser admin -AdminPassword "tu-clave-segura"
+```
+
+Para detenerla:
+
+```powershell
+.\stop-local.cmd
 ```
 
 Para correr pruebas:

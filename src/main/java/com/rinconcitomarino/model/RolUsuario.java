@@ -4,7 +4,8 @@ import java.util.Arrays;
 
 public enum RolUsuario {
     ADMIN("admin", "Administrador"),
-    EMPLEADO("empleado", "Empleado");
+    EMPLEADO("empleado", "Empleado"),
+    LECTOR("lector", "Solo lectura");
 
     private final String databaseValue;
     private final String etiqueta;

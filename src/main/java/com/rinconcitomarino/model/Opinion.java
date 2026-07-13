@@ -12,10 +12,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "opiniones")
 public class Opinion {
+
+    private static final ZoneId LIMA_ZONE = ZoneId.of("America/Lima");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,13 +40,25 @@ public class Opinion {
     @Column(nullable = false, length = 600)
     private String comentario;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private Boolean visible = true;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean destacado = false;
+
     @Column(name = "fecha_registro", nullable = false, updatable = false)
     private LocalDateTime fechaRegistro;
 
     @PrePersist
     void prePersist() {
         if (fechaRegistro == null) {
-            fechaRegistro = LocalDateTime.now();
+            fechaRegistro = LocalDateTime.now(LIMA_ZONE);
+        }
+        if (visible == null) {
+            visible = true;
+        }
+        if (destacado == null) {
+            destacado = false;
         }
     }
 
@@ -77,6 +92,22 @@ public class Opinion {
 
     public void setComentario(String comentario) {
         this.comentario = comentario;
+    }
+
+    public Boolean getVisible() {
+        return visible;
+    }
+
+    public void setVisible(Boolean visible) {
+        this.visible = visible;
+    }
+
+    public Boolean getDestacado() {
+        return destacado;
+    }
+
+    public void setDestacado(Boolean destacado) {
+        this.destacado = destacado;
     }
 
     public LocalDateTime getFechaRegistro() {

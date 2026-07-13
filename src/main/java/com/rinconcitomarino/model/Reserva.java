@@ -16,14 +16,19 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.net.URLEncoder;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "reservas")
 public class Reserva {
+
+    private static final ZoneId LIMA_ZONE = ZoneId.of("America/Lima");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -87,7 +92,7 @@ public class Reserva {
     @PrePersist
     void prePersist() {
         if (fechaRegistro == null) {
-            fechaRegistro = LocalDateTime.now();
+            fechaRegistro = LocalDateTime.now(LIMA_ZONE);
         }
         if (estado == null) {
             estado = EstadoReserva.PENDIENTE;
@@ -107,6 +112,19 @@ public class Reserva {
                 + " persona(s) el " + fechaTexto + " a las " + hora
                 + " esta pendiente. Para confirmarla, coordina el adelanto de S/ "
                 + new BigDecimal("20.00") + ".";
+    }
+
+    @Transient
+    public String getWhatsappClienteUrl() {
+        if (telefono == null || telefono.isBlank()) {
+            return null;
+        }
+        String telefonoLimpio = telefono.replaceAll("\\D", "");
+        if (telefonoLimpio.length() == 9) {
+            telefonoLimpio = "51" + telefonoLimpio;
+        }
+        String mensaje = URLEncoder.encode(getWhatsappMensaje(), StandardCharsets.UTF_8);
+        return "https://wa.me/" + telefonoLimpio + "?text=" + mensaje;
     }
 
     public Long getId() {

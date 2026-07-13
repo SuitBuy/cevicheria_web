@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v='20260608-cache-reset')}">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top site-navbar home-navbar" id="siteNavbar">
@@ -32,15 +32,15 @@
 </nav>
 
 <header class="hero" id="inicio">
-    <video autoplay muted loop playsinline>
-        <source th:src="@{/assets/main.mp4}" type="video/mp4">
+    <video autoplay muted loop playsinline poster="/assets/logo2.png" th:poster="@{/assets/logo2.png}">
+        <source th:src="@{/assets/main.mp4(v='20260608-video-reset')}" type="video/mp4">
     </video>
     <div class="hero-content container">
         <div class="row align-items-center w-100">
             <div class="col-lg-7 col-xl-6">
                 <img class="hero-logo mb-4" th:src="@{/assets/logo2.png}" alt="Logo Rinconcito Marino">
-                <h1 class="display-5 fw-bold">Sabor marino peruano en Miraflores</h1>
-                <p class="lead mb-4">Reservas, carta y opiniones conectadas a una experiencia digital moderna.</p>
+                <h1 class="display-5 fw-bold">Sabor marino peruano</h1>
+                <p class="lead mb-4">Ingredientes naturales, sabor fresco y original.</p>
                 <div class="d-flex flex-wrap gap-2">
                     <a th:href="@{/reservas}" class="btn btn-rm btn-lg">Reservar mesa</a>
                     <a th:href="@{/carta}" class="btn btn-light btn-lg">Ver carta</a>

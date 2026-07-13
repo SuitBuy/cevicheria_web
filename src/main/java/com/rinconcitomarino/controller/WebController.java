@@ -3,9 +3,18 @@ package com.rinconcitomarino.controller;
 import com.rinconcitomarino.model.EstadoReserva;
 import com.rinconcitomarino.model.Opinion;
 import com.rinconcitomarino.model.Reserva;
+import com.rinconcitomarino.model.RolUsuario;
+import com.rinconcitomarino.model.UsuarioAdmin;
+import com.rinconcitomarino.repository.UsuarioAdminRepository;
 import com.rinconcitomarino.service.OpinionService;
 import com.rinconcitomarino.service.ReservaService;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,6 +25,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -23,10 +34,19 @@ public class WebController {
 
     private final ReservaService reservaService;
     private final OpinionService opinionService;
+    private final UsuarioAdminRepository usuarioAdminRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public WebController(ReservaService reservaService, OpinionService opinionService) {
+    public WebController(
+            ReservaService reservaService,
+            OpinionService opinionService,
+            UsuarioAdminRepository usuarioAdminRepository,
+            PasswordEncoder passwordEncoder
+    ) {
         this.reservaService = reservaService;
         this.opinionService = opinionService;
+        this.usuarioAdminRepository = usuarioAdminRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/")
@@ -91,26 +111,76 @@ public class WebController {
     }
 
     @GetMapping("/admin")
-    public String admin(@RequestParam(required = false) String q, Model model) {
+    public String dashboard(Model model) {
+        reservaService.expirarPendientesVencidas();
+        model.addAttribute("view", "dashboard");
+        model.addAttribute("stats", reservaService.calcularStats());
+        model.addAttribute("reservasHoy", reservaService.listarReservasHoy());
+        model.addAttribute("reservasUrgentes", reservaService.listarPendientesUrgentes());
+        model.addAttribute("historialReciente", reservaService.listarHistorialReciente());
+        model.addAttribute("opinionesRecientes", opinionService.listar(null).stream().limit(5).toList());
+        return "admin";
+    }
+
+    @GetMapping("/admin/reservas")
+    public String adminReservas(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) EstadoReserva estado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            @RequestParam(required = false) Integer personas,
+            @RequestParam(required = false) String hora,
+            Model model
+    ) {
         reservaService.expirarPendientesVencidas();
         model.addAttribute("view", "reservas");
         model.addAttribute("q", q);
-        model.addAttribute("reservas", reservaService.listarReservas(q));
+        model.addAttribute("estadoFiltro", estado);
+        model.addAttribute("fechaDesde", fechaDesde);
+        model.addAttribute("fechaHasta", fechaHasta);
+        model.addAttribute("personasFiltro", personas);
+        model.addAttribute("horaFiltro", hora);
+        model.addAttribute("reservas", reservaService.listarReservas(q, estado, fechaDesde, fechaHasta, personas, hora));
         model.addAttribute("stats", reservaService.calcularStats());
         model.addAttribute("estados", EstadoReserva.values());
         return "admin";
     }
 
     @PostMapping("/admin/reservas/{id}/estado")
-    public String cambiarEstadoReserva(@PathVariable Long id, @RequestParam EstadoReserva estado) {
-        reservaService.cambiarEstado(id, estado);
-        return "redirect:/admin";
+    public String cambiarEstadoReserva(@PathVariable Long id, @RequestParam EstadoReserva estado, Authentication authentication) {
+        reservaService.cambiarEstado(id, estado, authentication == null ? "sistema" : authentication.getName());
+        return "redirect:/admin/reservas";
     }
 
     @PostMapping("/admin/reservas/{id}/eliminar")
-    public String eliminarReserva(@PathVariable Long id) {
-        reservaService.eliminar(id);
-        return "redirect:/admin";
+    public String eliminarReserva(@PathVariable Long id, Authentication authentication) {
+        reservaService.eliminar(id, authentication == null ? "sistema" : authentication.getName());
+        return "redirect:/admin/reservas";
+    }
+
+    @GetMapping("/admin/reservas/exportar")
+    public ResponseEntity<String> exportarReservas(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) EstadoReserva estado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            @RequestParam(required = false) Integer personas,
+            @RequestParam(required = false) String hora
+    ) {
+        List<Reserva> reservas = reservaService.listarReservas(q, estado, fechaDesde, fechaHasta, personas, hora);
+        StringBuilder csv = new StringBuilder("cliente,dni,email,telefono,personas,fecha,hora,estado\n");
+        reservas.forEach(reserva -> csv.append(csv(reserva.getNombreCompleto())).append(',')
+                .append(csv(reserva.getDni())).append(',')
+                .append(csv(reserva.getEmail())).append(',')
+                .append(csv(reserva.getTelefono())).append(',')
+                .append(reserva.getPersonas()).append(',')
+                .append(reserva.getFecha()).append(',')
+                .append(csv(reserva.getHora())).append(',')
+                .append(csv(reserva.getEstado().getEtiqueta())).append('\n'));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reservas.csv")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(csv.toString());
     }
 
     @GetMapping("/admin/opiniones")
@@ -120,6 +190,70 @@ public class WebController {
         model.addAttribute("opiniones", opinionService.listar(q));
         model.addAttribute("stats", reservaService.calcularStats());
         return "admin";
+    }
+
+    @PostMapping("/admin/opiniones/{id}/moderacion")
+    public String moderarOpinion(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean visible,
+            @RequestParam(defaultValue = "false") boolean destacado
+    ) {
+        opinionService.cambiarModeracion(id, visible, destacado);
+        return "redirect:/admin/opiniones";
+    }
+
+    @GetMapping("/admin/usuarios")
+    public String adminUsuarios(Model model, Authentication authentication) {
+        model.addAttribute("view", "usuarios");
+        model.addAttribute("usuarios", usuarioAdminRepository.findAll());
+        model.addAttribute("roles", RolUsuario.values());
+        model.addAttribute("currentUser", authentication == null ? "" : authentication.getName());
+        model.addAttribute("stats", reservaService.calcularStats());
+        return "admin";
+    }
+
+    @PostMapping("/admin/usuarios")
+    public String crearUsuario(
+            @RequestParam String usuario,
+            @RequestParam String password,
+            @RequestParam RolUsuario rol,
+            RedirectAttributes redirectAttributes
+    ) {
+        String usuarioLimpio = usuario == null ? "" : usuario.trim();
+        if (usuarioLimpio.length() < 3 || password == null || password.length() < 8) {
+            redirectAttributes.addFlashAttribute("userError", "Usuario minimo 3 caracteres y contrasena minimo 8 caracteres.");
+            return "redirect:/admin/usuarios";
+        }
+        if (usuarioAdminRepository.findByUsuario(usuarioLimpio).isPresent()) {
+            redirectAttributes.addFlashAttribute("userError", "Ese usuario ya existe.");
+            return "redirect:/admin/usuarios";
+        }
+
+        UsuarioAdmin nuevoUsuario = new UsuarioAdmin();
+        nuevoUsuario.setUsuario(usuarioLimpio);
+        nuevoUsuario.setPassword(passwordEncoder.encode(password));
+        nuevoUsuario.setRol(rol);
+        usuarioAdminRepository.save(nuevoUsuario);
+        redirectAttributes.addFlashAttribute("userOk", "Usuario creado correctamente.");
+        return "redirect:/admin/usuarios";
+    }
+
+    @PostMapping("/admin/usuarios/{id}/eliminar")
+    public String eliminarUsuario(
+            @PathVariable Long id,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
+    ) {
+        UsuarioAdmin usuario = usuarioAdminRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + id));
+        String currentUser = authentication == null ? "" : authentication.getName();
+        if (usuario.getUsuario().equalsIgnoreCase(currentUser)) {
+            redirectAttributes.addFlashAttribute("userError", "No puedes eliminar tu propio usuario.");
+            return "redirect:/admin/usuarios";
+        }
+        usuarioAdminRepository.delete(usuario);
+        redirectAttributes.addFlashAttribute("userOk", "Usuario eliminado correctamente.");
+        return "redirect:/admin/usuarios";
     }
 
     @PostMapping("/admin/opiniones/{id}/eliminar")
@@ -145,5 +279,12 @@ public class WebController {
     }
 
     public record PlatoView(String nombre, String descripcion, String imagen) {
+    }
+
+    private String csv(String value) {
+        if (value == null) {
+            return "";
+        }
+        return "\"" + value.replace("\"", "\"\"") + "\"";
     }
 }
