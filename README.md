@@ -23,7 +23,7 @@ JWT_SECRET=
 JWT_EXPIRATION_MINUTES=480
 JWT_COOKIE_SECURE=true
 ADMIN_BOOTSTRAP_ENABLED=true
-ADMIN_USER=admin
+ADMIN_USER=
 ADMIN_PASSWORD=
 ADMIN_ROLE=ADMIN
 WHATSAPP_NUMBER=
@@ -86,6 +86,12 @@ En Windows:
 ```
 
 Esto levanta la app con H2 en memoria y abre `http://localhost:8081`.
+
+Para crear un usuario admin local en memoria, pasa credenciales por parametro o variables de entorno:
+
+```powershell
+.\run-local.cmd -AdminUser admin -AdminPassword "tu-clave-segura"
+```
 
 Para detenerla:
 

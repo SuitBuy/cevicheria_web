@@ -1,5 +1,8 @@
 param(
     [int]$Port = 8081,
+    [string]$AdminUser = $env:ADMIN_USER,
+    [string]$AdminPassword = $env:ADMIN_PASSWORD,
+    [string]$AdminRole = $(if ($env:ADMIN_ROLE) { $env:ADMIN_ROLE } else { "ADMIN" }),
     [switch]$NoBrowser
 )
 
@@ -48,7 +51,17 @@ $env:SPRING_DATASOURCE_DRIVER_CLASS_NAME = "org.h2.Driver"
 $env:SPRING_DATASOURCE_USERNAME = "sa"
 $env:SPRING_DATASOURCE_PASSWORD = ""
 $env:SPRING_JPA_HIBERNATE_DDL_AUTO = "create-drop"
-$env:APP_ADMIN_BOOTSTRAP_ENABLED = "false"
+if ($AdminUser -and $AdminPassword) {
+    $env:APP_ADMIN_BOOTSTRAP_ENABLED = "true"
+    $env:ADMIN_USER = $AdminUser
+    $env:ADMIN_PASSWORD = $AdminPassword
+    $env:ADMIN_ROLE = $AdminRole
+} else {
+    $env:APP_ADMIN_BOOTSTRAP_ENABLED = "false"
+    Remove-Item Env:\ADMIN_USER -ErrorAction SilentlyContinue
+    Remove-Item Env:\ADMIN_PASSWORD -ErrorAction SilentlyContinue
+    Remove-Item Env:\ADMIN_ROLE -ErrorAction SilentlyContinue
+}
 $env:OPINION_EMAIL_ENABLED = "false"
 
 Remove-Item -LiteralPath $outLog, $errLog -Force -ErrorAction SilentlyContinue
