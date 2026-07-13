@@ -3,7 +3,9 @@ package com.rinconcitomarino.service;
 import com.rinconcitomarino.dto.ReservaStats;
 import com.rinconcitomarino.model.EstadoReserva;
 import com.rinconcitomarino.model.Reserva;
+import com.rinconcitomarino.model.ReservaHistorial;
 import com.rinconcitomarino.repository.OpinionRepository;
+import com.rinconcitomarino.repository.ReservaHistorialRepository;
 import com.rinconcitomarino.repository.ReservaRepository;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,15 +34,18 @@ public class ReservaService {
 
     private final ReservaRepository reservaRepository;
     private final OpinionRepository opinionRepository;
+    private final ReservaHistorialRepository reservaHistorialRepository;
     private final String whatsappNumber;
 
     public ReservaService(
             ReservaRepository reservaRepository,
             OpinionRepository opinionRepository,
+            ReservaHistorialRepository reservaHistorialRepository,
             @Value("${app.restaurant.whatsapp-number:}") String whatsappNumber
     ) {
         this.reservaRepository = reservaRepository;
         this.opinionRepository = opinionRepository;
+        this.reservaHistorialRepository = reservaHistorialRepository;
         this.whatsappNumber = whatsappNumber;
     }
 
@@ -59,20 +64,48 @@ public class ReservaService {
 
     @Transactional(readOnly = true)
     public List<Reserva> listarReservas(String busqueda) {
-        return listarReservas(busqueda, null, null);
+        return listarReservas(busqueda, null, null, null, null, null);
     }
 
     @Transactional(readOnly = true)
     public List<Reserva> listarReservas(String busqueda, EstadoReserva estado, LocalDate fecha) {
+        return listarReservas(busqueda, estado, fecha, fecha, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Reserva> listarReservas(
+            String busqueda,
+            EstadoReserva estado,
+            LocalDate fechaDesde,
+            LocalDate fechaHasta,
+            Integer personas,
+            String hora
+    ) {
         List<Reserva> reservas = reservaRepository.findAll(specBusqueda(busqueda));
         if (estado != null) {
             reservas = reservas.stream()
                     .filter(reserva -> reserva.getEstado() == estado)
                     .toList();
         }
-        if (fecha != null) {
+        if (fechaDesde != null) {
             reservas = reservas.stream()
-                    .filter(reserva -> fecha.equals(reserva.getFecha()))
+                    .filter(reserva -> reserva.getFecha() != null && !reserva.getFecha().isBefore(fechaDesde))
+                    .toList();
+        }
+        if (fechaHasta != null) {
+            reservas = reservas.stream()
+                    .filter(reserva -> reserva.getFecha() != null && !reserva.getFecha().isAfter(fechaHasta))
+                    .toList();
+        }
+        if (personas != null) {
+            reservas = reservas.stream()
+                    .filter(reserva -> personas.equals(reserva.getPersonas()))
+                    .toList();
+        }
+        if (hora != null && !hora.isBlank()) {
+            String horaLimpia = hora.trim();
+            reservas = reservas.stream()
+                    .filter(reserva -> horaLimpia.equals(reserva.getHora()))
                     .toList();
         }
         ordenarReservas(reservas);
@@ -101,17 +134,29 @@ public class ReservaService {
 
     @Transactional
     public Reserva cambiarEstado(Long id, EstadoReserva estado) {
+        return cambiarEstado(id, estado, "api");
+    }
+
+    @Transactional
+    public Reserva cambiarEstado(Long id, EstadoReserva estado, String usuario) {
         Reserva reserva = obtenerPorId(id);
+        EstadoReserva anterior = reserva.getEstado();
         reserva.setEstado(estado);
-        return reservaRepository.save(reserva);
+        Reserva guardada = reservaRepository.save(reserva);
+        registrarHistorial(guardada.getId(), usuario, "Cambio de estado", anterior.getEtiqueta() + " -> " + estado.getEtiqueta());
+        return guardada;
     }
 
     @Transactional
     public void eliminar(Long id) {
-        if (!reservaRepository.existsById(id)) {
-            throw new IllegalArgumentException("Reserva no encontrada: " + id);
-        }
-        reservaRepository.deleteById(id);
+        eliminar(id, "api");
+    }
+
+    @Transactional
+    public void eliminar(Long id, String usuario) {
+        Reserva reserva = obtenerPorId(id);
+        registrarHistorial(id, usuario, "Eliminacion", "Reserva de " + reserva.getNombreCompleto());
+        reservaRepository.delete(reserva);
     }
 
     @Transactional
@@ -147,7 +192,11 @@ public class ReservaService {
                 .orElse("Sin reservas");
         return new ReservaStats(
                 reservaRepository.countByEstado(EstadoReserva.PENDIENTE),
+                reservas.stream().filter(reserva -> hoy.equals(reserva.getFecha())).count(),
                 reservaRepository.countByFechaAndEstado(hoy, EstadoReserva.CONFIRMADO),
+                reservaRepository.countByEstado(EstadoReserva.ATENDIDO),
+                reservaRepository.countByEstado(EstadoReserva.NO_ASISTIO),
+                reservaRepository.countByEstado(EstadoReserva.CANCELADO_CLIENTE),
                 reservaRepository.countByEstado(EstadoReserva.RECHAZADO),
                 reservaRepository.countByEstado(EstadoReserva.EXPIRADO),
                 personasHoy,
@@ -155,6 +204,11 @@ public class ReservaService {
                 opinionRepository.count(),
                 horarioMasReservado
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservaHistorial> listarHistorialReciente() {
+        return reservaHistorialRepository.findTop20ByOrderByFechaDesc();
     }
 
     public String generarWhatsappUrl(Reserva reserva) {
@@ -178,6 +232,16 @@ public class ReservaService {
             Predicate email = cb.like(cb.lower(root.get("email")), termino);
             return cb.or(nombres, apellidos, dni, telefono, email);
         };
+    }
+
+    private void registrarHistorial(Long reservaId, String usuario, String accion, String detalle) {
+        ReservaHistorial historial = new ReservaHistorial();
+        historial.setReservaId(reservaId);
+        historial.setUsuario(usuario == null || usuario.isBlank() ? "sistema" : usuario);
+        historial.setAccion(accion);
+        historial.setDetalle(detalle);
+        historial.setFecha(LocalDateTime.now(LIMA_ZONE));
+        reservaHistorialRepository.save(historial);
     }
 
     private void ordenarReservas(List<Reserva> reservas) {

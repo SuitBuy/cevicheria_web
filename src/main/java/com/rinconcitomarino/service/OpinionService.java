@@ -41,6 +41,15 @@ public class OpinionService {
     }
 
     @Transactional
+    public void cambiarModeracion(Long id, boolean visible, boolean destacado) {
+        Opinion opinion = opinionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Opinion no encontrada: " + id));
+        opinion.setVisible(visible);
+        opinion.setDestacado(destacado);
+        opinionRepository.save(opinion);
+    }
+
+    @Transactional
     public void eliminar(Long id) {
         if (!opinionRepository.existsById(id)) {
             throw new IllegalArgumentException("Opinion no encontrada: " + id);

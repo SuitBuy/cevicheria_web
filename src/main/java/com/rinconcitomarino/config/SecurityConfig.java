@@ -43,14 +43,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,
                                 "/reservas", "/opiniones", "/login", "/api/auth/login", "/api/reservas", "/api/opiniones"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/logout").hasAnyRole("ADMIN", "EMPLEADO")
+                        .requestMatchers(HttpMethod.POST, "/logout").hasAnyRole("ADMIN", "EMPLEADO", "LECTOR")
                         .requestMatchers("/admin/usuarios/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/admin/reservas/*/eliminar", "/admin/opiniones/*/eliminar").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/admin/**").hasAnyRole("ADMIN", "EMPLEADO", "LECTOR")
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "EMPLEADO")
                         .requestMatchers(HttpMethod.GET, "/api/reservas/**", "/api/opiniones/**")
-                        .hasAnyRole("ADMIN", "EMPLEADO")
+                        .hasAnyRole("ADMIN", "EMPLEADO", "LECTOR")
                         .requestMatchers(HttpMethod.PATCH, "/api/reservas/**").hasAnyRole("ADMIN", "EMPLEADO")
-                        .requestMatchers(HttpMethod.DELETE, "/api/reservas/**", "/api/opiniones/**")
-                        .hasAnyRole("ADMIN", "EMPLEADO")
+                        .requestMatchers(HttpMethod.DELETE, "/api/reservas/**", "/api/opiniones/**").hasRole("ADMIN")
                         .anyRequest().denyAll()
                 )
                 .exceptionHandling(exceptions -> exceptions

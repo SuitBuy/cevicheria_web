@@ -12,6 +12,9 @@ import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -114,6 +117,7 @@ public class WebController {
         model.addAttribute("stats", reservaService.calcularStats());
         model.addAttribute("reservasHoy", reservaService.listarReservasHoy());
         model.addAttribute("reservasUrgentes", reservaService.listarPendientesUrgentes());
+        model.addAttribute("historialReciente", reservaService.listarHistorialReciente());
         model.addAttribute("opinionesRecientes", opinionService.listar(null).stream().limit(5).toList());
         return "admin";
     }
@@ -122,30 +126,61 @@ public class WebController {
     public String adminReservas(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) EstadoReserva estado,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            @RequestParam(required = false) Integer personas,
+            @RequestParam(required = false) String hora,
             Model model
     ) {
         reservaService.expirarPendientesVencidas();
         model.addAttribute("view", "reservas");
         model.addAttribute("q", q);
         model.addAttribute("estadoFiltro", estado);
-        model.addAttribute("fechaFiltro", fecha);
-        model.addAttribute("reservas", reservaService.listarReservas(q, estado, fecha));
+        model.addAttribute("fechaDesde", fechaDesde);
+        model.addAttribute("fechaHasta", fechaHasta);
+        model.addAttribute("personasFiltro", personas);
+        model.addAttribute("horaFiltro", hora);
+        model.addAttribute("reservas", reservaService.listarReservas(q, estado, fechaDesde, fechaHasta, personas, hora));
         model.addAttribute("stats", reservaService.calcularStats());
         model.addAttribute("estados", EstadoReserva.values());
         return "admin";
     }
 
     @PostMapping("/admin/reservas/{id}/estado")
-    public String cambiarEstadoReserva(@PathVariable Long id, @RequestParam EstadoReserva estado) {
-        reservaService.cambiarEstado(id, estado);
+    public String cambiarEstadoReserva(@PathVariable Long id, @RequestParam EstadoReserva estado, Authentication authentication) {
+        reservaService.cambiarEstado(id, estado, authentication == null ? "sistema" : authentication.getName());
         return "redirect:/admin/reservas";
     }
 
     @PostMapping("/admin/reservas/{id}/eliminar")
-    public String eliminarReserva(@PathVariable Long id) {
-        reservaService.eliminar(id);
+    public String eliminarReserva(@PathVariable Long id, Authentication authentication) {
+        reservaService.eliminar(id, authentication == null ? "sistema" : authentication.getName());
         return "redirect:/admin/reservas";
+    }
+
+    @GetMapping("/admin/reservas/exportar")
+    public ResponseEntity<String> exportarReservas(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) EstadoReserva estado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta,
+            @RequestParam(required = false) Integer personas,
+            @RequestParam(required = false) String hora
+    ) {
+        List<Reserva> reservas = reservaService.listarReservas(q, estado, fechaDesde, fechaHasta, personas, hora);
+        StringBuilder csv = new StringBuilder("cliente,dni,email,telefono,personas,fecha,hora,estado\n");
+        reservas.forEach(reserva -> csv.append(csv(reserva.getNombreCompleto())).append(',')
+                .append(csv(reserva.getDni())).append(',')
+                .append(csv(reserva.getEmail())).append(',')
+                .append(csv(reserva.getTelefono())).append(',')
+                .append(reserva.getPersonas()).append(',')
+                .append(reserva.getFecha()).append(',')
+                .append(csv(reserva.getHora())).append(',')
+                .append(csv(reserva.getEstado().getEtiqueta())).append('\n'));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reservas.csv")
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .body(csv.toString());
     }
 
     @GetMapping("/admin/opiniones")
@@ -155,6 +190,16 @@ public class WebController {
         model.addAttribute("opiniones", opinionService.listar(q));
         model.addAttribute("stats", reservaService.calcularStats());
         return "admin";
+    }
+
+    @PostMapping("/admin/opiniones/{id}/moderacion")
+    public String moderarOpinion(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "false") boolean visible,
+            @RequestParam(defaultValue = "false") boolean destacado
+    ) {
+        opinionService.cambiarModeracion(id, visible, destacado);
+        return "redirect:/admin/opiniones";
     }
 
     @GetMapping("/admin/usuarios")
@@ -234,5 +279,12 @@ public class WebController {
     }
 
     public record PlatoView(String nombre, String descripcion, String imagen) {
+    }
+
+    private String csv(String value) {
+        if (value == null) {
+            return "";
+        }
+        return "\"" + value.replace("\"", "\"\"") + "\"";
     }
 }

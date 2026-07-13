@@ -40,7 +40,7 @@ SELECT
     1 + MOD(n, 8) AS personas,
     DATE_ADD(CURDATE(), INTERVAL MOD(n, 21) DAY) AS fecha,
     ELT(MOD(n - 1, 8) + 1, '12:00', '12:30', '13:00', '13:30', '19:00', '19:30', '20:00', '20:30') AS hora,
-    ELT(MOD(n - 1, 4) + 1, 'Pendiente', 'Confirmado', 'Rechazado', 'Expirado') AS estado,
+    ELT(MOD(n - 1, 7) + 1, 'Pendiente', 'Confirmado', 'Atendido', 'No asistio', 'Cancelado por cliente', 'Rechazado', 'Expirado') AS estado,
     DATE_SUB(NOW(), INTERVAL n HOUR) AS fecha_registro
 FROM seq;
 
@@ -48,6 +48,8 @@ INSERT INTO opiniones (
     nombres,
     correo,
     comentario,
+    visible,
+    destacado,
     fecha_registro
 )
 WITH RECURSIVE seq(n) AS (
@@ -75,5 +77,7 @@ SELECT
         'La carta es clara, el local agradable y la atencion puntual.',
         'Todo estuvo correcto, desde la reserva hasta la atencion en mesa.'
     ) AS comentario,
+    CASE WHEN MOD(n, 9) = 0 THEN FALSE ELSE TRUE END AS visible,
+    CASE WHEN MOD(n, 10) = 0 THEN TRUE ELSE FALSE END AS destacado,
     DATE_SUB(NOW(), INTERVAL n DAY) AS fecha_registro
 FROM seq;

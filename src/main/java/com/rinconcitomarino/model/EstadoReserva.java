@@ -5,8 +5,11 @@ import java.util.Arrays;
 public enum EstadoReserva {
     PENDIENTE("Pendiente", 1, "warning"),
     CONFIRMADO("Confirmado", 2, "success"),
-    RECHAZADO("Rechazado", 3, "danger"),
-    EXPIRADO("Expirado", 4, "secondary");
+    ATENDIDO("Atendido", 3, "primary"),
+    NO_ASISTIO("No asistio", 4, "dark"),
+    CANCELADO_CLIENTE("Cancelado por cliente", 5, "secondary"),
+    RECHAZADO("Rechazado", 6, "danger"),
+    EXPIRADO("Expirado", 7, "secondary");
 
     private final String etiqueta;
     private final int orden;

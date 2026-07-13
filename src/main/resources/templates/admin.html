@@ -87,9 +87,9 @@
             </div>
             <div class="col-md-6 col-xl-3">
                 <article class="dashboard-kpi primary">
-                    <span>Personas hoy</span>
-                    <strong th:text="${stats.personasHoy}">0</strong>
-                    <small>Aforo reservado pendiente/confirmado</small>
+                    <span>Reservas hoy</span>
+                    <strong th:text="${stats.reservasHoy}">0</strong>
+                    <small>Solicitudes para operar hoy</small>
                 </article>
             </div>
             <div class="col-md-6 col-xl-3">
@@ -111,9 +111,9 @@
             </div>
             <div class="col-md-6 col-xl-3">
                 <article class="dashboard-kpi muted">
-                    <span>Expiradas</span>
-                    <strong th:text="${stats.expiradas}">0</strong>
-                    <small>Pendientes fuera de tiempo</small>
+                    <span>Personas hoy</span>
+                    <strong th:text="${stats.personasHoy}">0</strong>
+                    <small>Aforo reservado esperado</small>
                 </article>
             </div>
             <div class="col-md-6 col-xl-3">
@@ -128,6 +128,30 @@
                     <span>Opiniones</span>
                     <strong th:text="${stats.opiniones}">0</strong>
                     <small>Comentarios recibidos</small>
+                </article>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <article class="dashboard-kpi success">
+                    <span>Atendidas</span>
+                    <strong th:text="${stats.atendidas}">0</strong>
+                    <small>Reservas completadas</small>
+                </article>
+            </div>
+            <div class="col-md-4">
+                <article class="dashboard-kpi muted">
+                    <span>No asistio</span>
+                    <strong th:text="${stats.noAsistio}">0</strong>
+                    <small>Clientes que no llegaron</small>
+                </article>
+            </div>
+            <div class="col-md-4">
+                <article class="dashboard-kpi muted">
+                    <span>Canceladas</span>
+                    <strong th:text="${stats.canceladasCliente}">0</strong>
+                    <small>Canceladas por cliente / expiradas: <span th:text="${stats.expiradas}">0</span></small>
                 </article>
             </div>
         </div>
@@ -224,6 +248,25 @@
                     </div>
                 </section>
             </div>
+
+            <div class="col-xl-5">
+                <section class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <p class="text-uppercase text-secondary fw-semibold small mb-1">Auditoria</p>
+                        <h2 class="h5 fw-bold mb-3">Historial reciente</h2>
+                        <div class="dashboard-list compact">
+                            <article th:each="item : ${historialReciente}" class="dashboard-list-item">
+                                <div>
+                                    <strong th:text="${item.accion}">Accion</strong>
+                                    <span><span th:text="${item.usuario}">usuario</span> - <span th:text="${item.detalle}">detalle</span></span>
+                                </div>
+                                <small th:text="${#temporals.format(item.fecha, 'dd/MM HH:mm')}">01/01</small>
+                            </article>
+                            <div th:if="${#lists.isEmpty(historialReciente)}" class="dashboard-empty">Todavia no hay movimientos.</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
     </section>
 
@@ -247,8 +290,15 @@
                     <option value="">Todos los estados</option>
                     <option th:each="estado : ${estados}" th:value="${estado}" th:text="${estado.etiqueta}" th:selected="${estadoFiltro == estado}">Estado</option>
                 </select>
-                <input class="form-control" type="date" name="fecha" th:value="${fechaFiltro}">
+                <input class="form-control" type="date" name="fechaDesde" th:value="${fechaDesde}" title="Desde">
+                <input class="form-control" type="date" name="fechaHasta" th:value="${fechaHasta}" title="Hasta">
+                <input class="form-control" type="number" min="1" max="20" name="personas" th:value="${personasFiltro}" placeholder="Personas">
+                <input class="form-control" type="text" name="hora" th:value="${horaFiltro}" placeholder="Hora">
                 <button class="btn btn-rm" type="submit"><i class="fa-solid fa-filter"></i> Filtrar</button>
+                <a class="btn btn-outline-rm"
+                   th:href="@{/admin/reservas/exportar(q=${q},estado=${estadoFiltro},fechaDesde=${fechaDesde},fechaHasta=${fechaHasta},personas=${personasFiltro},hora=${horaFiltro})}">
+                    <i class="fa-solid fa-file-csv"></i> CSV
+                </a>
                 <a class="btn btn-outline-secondary" th:href="@{/admin/reservas}">Limpiar</a>
             </form>
 
@@ -292,15 +342,27 @@
                                    th:href="${reserva.whatsappClienteUrl}">
                                     <i class="fab fa-whatsapp"></i>
                                 </a>
-                                <form th:if="${reserva.estado.name() == 'PENDIENTE'}" th:action="@{/admin/reservas/{id}/estado(id=${reserva.id})}" method="post">
+                                <form th:if="${reserva.estado.name() == 'PENDIENTE'}" th:action="@{/admin/reservas/{id}/estado(id=${reserva.id})}" method="post" sec:authorize="!hasRole('LECTOR')">
                                     <input type="hidden" name="estado" value="CONFIRMADO">
                                     <button class="btn btn-outline-success btn-sm" type="submit">Confirmar</button>
                                 </form>
-                                <form th:if="${reserva.estado.name() == 'PENDIENTE'}" th:action="@{/admin/reservas/{id}/estado(id=${reserva.id})}" method="post">
+                                <form th:if="${reserva.estado.name() == 'CONFIRMADO'}" th:action="@{/admin/reservas/{id}/estado(id=${reserva.id})}" method="post" sec:authorize="!hasRole('LECTOR')">
+                                    <input type="hidden" name="estado" value="ATENDIDO">
+                                    <button class="btn btn-outline-primary btn-sm" type="submit">Atendido</button>
+                                </form>
+                                <form th:if="${reserva.estado.name() == 'CONFIRMADO'}" th:action="@{/admin/reservas/{id}/estado(id=${reserva.id})}" method="post" sec:authorize="!hasRole('LECTOR')">
+                                    <input type="hidden" name="estado" value="NO_ASISTIO">
+                                    <button class="btn btn-outline-dark btn-sm" type="submit">No asistio</button>
+                                </form>
+                                <form th:if="${reserva.estado.name() == 'PENDIENTE'}" th:action="@{/admin/reservas/{id}/estado(id=${reserva.id})}" method="post" sec:authorize="!hasRole('LECTOR')">
+                                    <input type="hidden" name="estado" value="CANCELADO_CLIENTE">
+                                    <button class="btn btn-outline-secondary btn-sm" type="submit">Cancelar</button>
+                                </form>
+                                <form th:if="${reserva.estado.name() == 'PENDIENTE'}" th:action="@{/admin/reservas/{id}/estado(id=${reserva.id})}" method="post" sec:authorize="!hasRole('LECTOR')">
                                     <input type="hidden" name="estado" value="RECHAZADO">
                                     <button class="btn btn-outline-danger btn-sm" type="submit">Rechazar</button>
                                 </form>
-                                <form th:action="@{/admin/reservas/{id}/eliminar(id=${reserva.id})}" method="post" onsubmit="return confirm('Eliminar esta reserva?')">
+                                <form th:action="@{/admin/reservas/{id}/eliminar(id=${reserva.id})}" method="post" onsubmit="return confirm('Eliminar esta reserva?')" sec:authorize="hasRole('ADMIN')">
                                     <button class="btn btn-outline-secondary btn-sm" type="submit"><i class="fa-regular fa-trash-can"></i></button>
                                 </form>
                             </div>
@@ -320,6 +382,7 @@
                         <th>Nombre</th>
                         <th>Correo</th>
                         <th>Comentario</th>
+                        <th>Moderacion</th>
                         <th>Fecha</th>
                         <th class="text-end">Acciones</th>
                     </tr>
@@ -329,15 +392,32 @@
                         <td th:text="${opinion.nombres}">Nombre</td>
                         <td th:text="${opinion.correo}">correo@demo.com</td>
                         <td th:text="${opinion.comentario}">Comentario</td>
+                        <td>
+                            <span class="badge text-bg-success" th:if="${opinion.visible}">Visible</span>
+                            <span class="badge text-bg-secondary" th:unless="${opinion.visible}">Oculto</span>
+                            <span class="badge text-bg-warning" th:if="${opinion.destacado}">Destacado</span>
+                        </td>
                         <td th:text="${#temporals.format(opinion.fechaRegistro, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
                         <td class="text-end">
-                            <form th:action="@{/admin/opiniones/{id}/eliminar(id=${opinion.id})}" method="post" onsubmit="return confirm('Eliminar esta opinion?')">
-                                <button class="btn btn-outline-secondary btn-sm" type="submit"><i class="fa-regular fa-trash-can"></i></button>
-                            </form>
+                            <div class="d-flex flex-wrap justify-content-end gap-2">
+                                <form th:action="@{/admin/opiniones/{id}/moderacion(id=${opinion.id})}" method="post" sec:authorize="!hasRole('LECTOR')">
+                                    <input type="hidden" name="visible" th:value="${!opinion.visible}">
+                                    <input type="hidden" name="destacado" th:value="${opinion.destacado}">
+                                    <button class="btn btn-outline-rm btn-sm" type="submit" th:text="${opinion.visible} ? 'Ocultar' : 'Mostrar'">Ocultar</button>
+                                </form>
+                                <form th:action="@{/admin/opiniones/{id}/moderacion(id=${opinion.id})}" method="post" sec:authorize="!hasRole('LECTOR')">
+                                    <input type="hidden" name="visible" th:value="${opinion.visible}">
+                                    <input type="hidden" name="destacado" th:value="${!opinion.destacado}">
+                                    <button class="btn btn-outline-warning btn-sm" type="submit" th:text="${opinion.destacado} ? 'Quitar destacado' : 'Destacar'">Destacar</button>
+                                </form>
+                                <form th:action="@{/admin/opiniones/{id}/eliminar(id=${opinion.id})}" method="post" onsubmit="return confirm('Eliminar esta opinion?')" sec:authorize="hasRole('ADMIN')">
+                                    <button class="btn btn-outline-secondary btn-sm" type="submit"><i class="fa-regular fa-trash-can"></i></button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(opiniones)}">
-                        <td colspan="5" class="text-center text-secondary py-5">No hay opiniones para mostrar.</td>
+                        <td colspan="6" class="text-center text-secondary py-5">No hay opiniones para mostrar.</td>
                     </tr>
                     </tbody>
                 </table>
