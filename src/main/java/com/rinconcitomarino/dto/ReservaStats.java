@@ -1,5 +1,7 @@
 package com.rinconcitomarino.dto;
 
+import java.math.BigDecimal;
+
 public record ReservaStats(
         long pendientes,
         long reservasHoy,
@@ -11,6 +13,7 @@ public record ReservaStats(
         long expiradas,
         long personasHoy,
         long reservasMes,
+        BigDecimal gananciaReservas,
         long opiniones,
         String horarioMasReservado
 ) {

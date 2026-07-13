@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.net.URLEncoder;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,17 +37,20 @@ public class ReservaService {
     private final OpinionRepository opinionRepository;
     private final ReservaHistorialRepository reservaHistorialRepository;
     private final String whatsappNumber;
+    private final BigDecimal reservationFee;
 
     public ReservaService(
             ReservaRepository reservaRepository,
             OpinionRepository opinionRepository,
             ReservaHistorialRepository reservaHistorialRepository,
-            @Value("${app.restaurant.whatsapp-number:}") String whatsappNumber
+            @Value("${app.restaurant.whatsapp-number:}") String whatsappNumber,
+            @Value("${app.restaurant.reservation-fee:20.00}") BigDecimal reservationFee
     ) {
         this.reservaRepository = reservaRepository;
         this.opinionRepository = opinionRepository;
         this.reservaHistorialRepository = reservaHistorialRepository;
         this.whatsappNumber = whatsappNumber;
+        this.reservationFee = reservationFee;
     }
 
     @Transactional
@@ -181,6 +185,12 @@ public class ReservaService {
         long reservasMes = reservas.stream()
                 .filter(reserva -> reserva.getFecha() != null && YearMonth.from(reserva.getFecha()).equals(mesActual))
                 .count();
+        long reservasConGanancia = reservas.stream()
+                .filter(reserva -> reserva.getEstado() == EstadoReserva.CONFIRMADO
+                        || reserva.getEstado() == EstadoReserva.ATENDIDO
+                        || reserva.getEstado() == EstadoReserva.NO_ASISTIO)
+                .count();
+        BigDecimal gananciaReservas = reservationFee.multiply(BigDecimal.valueOf(reservasConGanancia));
         String horarioMasReservado = reservas.stream()
                 .filter(reserva -> hoy.equals(reserva.getFecha()))
                 .filter(reserva -> reserva.getHora() != null && !reserva.getHora().isBlank())
@@ -201,6 +211,7 @@ public class ReservaService {
                 reservaRepository.countByEstado(EstadoReserva.EXPIRADO),
                 personasHoy,
                 reservasMes,
+                gananciaReservas,
                 opinionRepository.count(),
                 horarioMasReservado
         );
